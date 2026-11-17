@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1322">
+<title>PyBot Live Lab · ルールベースAIの内部を探る</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="page">
+<header class="topbar">
+  <div class="identity"><div class="identity-mark">P<span>✳</span></div><div><div class="brand">PYBOT <strong>LIVE LAB</strong></div><div class="brand-sub">RULE-BASED AI · INTERACTIVE WORKSHOP</div></div></div>
+  <div class="toplinks"><span id="statusDot" class="status-chip"><i></i>準備中</span><a href="/docs/MANUAL.html" target="_blank" rel="noopener">操作ガイド ↗</a><a href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">元のPyBot ↗</a></div>
+</header>
+<section class="hero">
+  <div class="eyebrow"><span class="signal"></span> EXPERIMENT 01 <span class="dash">/</span> NO NEURAL NETWORK</div>
+  <h1>64万行のルールは、<br><span>「理解」にどこまで近づける？</span></h1>
+  <p>話しかける。候補を比べる。実行されたコードを追う。<br>LLMに似て見える理由と、決定的に異なるところを、自分の目で確かめる。</p>
+  <div class="hero-metrics">
+    <div><strong id="codeLines">—</strong><small>PYTHON LINES</small></div>
+    <div><strong id="moduleCount">—</strong><small>RESPONSE MODULES</small></div>
+    <div><strong>0</strong><small>MODEL WEIGHTS</small></div>
+    <div><strong id="sourceCommit">7d63c7f</strong><small>PINNED SOURCE</small></div>
+  </div>
+</section>
+<div class="flow-guide"><span><b>01</b> 質問してみる</span><span class="flow-arrow">→</span><span><b>02</b> 候補と採択を比較</span><span class="flow-arrow">→</span><span><b>03</b> コードを追う</span><span class="flow-arrow">→</span><span><b>04</b> 議論する</span></div>
+<main class="workspace">
+<section class="panel chat-panel">
+  <div class="panel-head"><div><span class="overline">PLAYGROUND</span><h2>PyBotと会話する</h2></div><div class="head-actions"><button class="tiny-btn" id="exportBtn" title="会話と候補をJSONで保存">↓ 保存</button><button class="tiny-btn" id="resetBtn" title="会話とメモリを初期化">↺ リセット</button></div></div>
+  <div class="demo-bar">
+    <div class="bar-title"><span class="spark">✦</span> 実験シナリオ <small>クリックで質問を入力欄に準備</small></div>
+    <div id="scenarioChips" class="scenario-chips"></div>
+    <div class="scenario-note" id="scenarioNote">試したいテーマを選んでください。自由な質問もできます。</div>
+  </div>
+  <div class="conversation" id="conversation" aria-live="polite">
+    <div class="empty-chat"><div class="empty-orb">◎</div><h3>まずは、話しかけてみましょう。</h3><p>例えば「Hi, I'm Sam.」と伝えて、名前を覚えているか確かめます。</p><button class="example-link" id="exampleBtn">この質問を使う ↗</button></div>
+  </div>
+  <div class="composer">
+    <label for="questionInput">YOUR MESSAGE <span>英語での質問がおすすめ</span></label>
+    <div class="composer-row"><textarea id="questionInput" rows="2" maxlength="1000" placeholder="Ask PyBot anything… 例: Why is the sky blue?"></textarea><button id="sendBtn" class="send-btn" aria-label="質問を送信"><span>送信</span><span class="send-icon">↗</span></button></div>
+    <div class="composer-hint"><span id="busyText">Enterで送信 / Shift+Enterで改行</span><span>ルールのみ · ローカル実行</span></div>
+  </div>
+</section>
+<section class="panel insight-panel">
+  <div class="panel-head"><div><span class="overline">INSIDE PYBOT</span><h2>回答が生まれるまで</h2></div><div class="live-flag"><span>●</span> LIVE ANALYSIS</div></div>
+  <div class="analysis-nav" role="tablist" aria-label="解析表示"><button role="tab" data-tab="candidates" aria-selected="true" class="active">候補と採択</button><button role="tab" data-tab="code" aria-selected="false">ソース追跡</button><button role="tab" data-tab="architecture" aria-selected="false">内部構造</button><button role="tab" data-tab="discussion" aria-selected="false">議論</button></div>
+  <div class="tab-body" id="tab-candidates" role="tabpanel">
+    <div class="result-top"><div><div class="result-label">選ばれた回答モジュール</div><div class="result-module" id="selectedModule">まだ会話がありません</div></div><div class="speed-pill" id="latency">— ms</div></div>
+    <div class="result-sub" id="resultMessage">質問を送信すると、本物のPyBotが生成した候補を表示します。</div>
+    <div class="lane-title"><div><b id="candidateCount">0</b> 件の回答候補</div><span>優先度順 · 採択とは別</span></div>
+    <div id="candidatesList" class="candidate-list"><div class="placeholder-card">ここに候補が表示されます。候補を選ぶと、元のPythonファイルを調べられます。</div></div>
+    <div class="memory-details"><details><summary>メモリの状態を調べる <span>展開 ↘</span></summary><div id="memoryView" class="memory-view">まだ記録はありません。</div></details></div>
+  </div>
+  <div class="tab-body hidden" id="tab-code" role="tabpanel">
+    <div class="code-intro"><div><div class="result-label">SOURCE EXPLORER</div><div id="codeTitle" class="code-title">候補を選ぶとコードを開きます</div></div><button id="traceBtn" class="accent-btn" disabled>↯ 実行行を追跡</button></div>
+    <div class="trace-note" id="traceNote">実行追跡は会話を固定seedで再実行します。元の会話には影響しません。</div>
+    <div class="code-toolbar"><button id="prevPage" title="前のソース範囲">←</button><span id="codeRange">—</span><button id="nextPage" title="次のソース範囲">→</button><a id="githubFileLink" href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">GitHubで開く ↗</a></div>
+    <div id="codeView" class="code-view"><div class="placeholder-code"># ここにPyBotの実際のコードが表示されます</div></div>
+    <div class="trace-legend"><span><i class="line-hit"></i>再実行時に通過した行</span><span id="traceCount">実行追跡前</span></div>
+    <details class="trace-details"><summary>実行された関数とその回数</summary><div id="functionCalls">追跡後に表示されます。</div></details>
+    <div class="search-section"><div class="result-label">CODE SEARCH</div><div class="search-row"><input id="searchInput" placeholder="例: PRIORITY, topic, remember"><select id="searchScope"><option value="modules">回答モジュール</option><option value="all">全ファイル</option></select><button id="searchBtn">探す</button></div><div id="searchResults" class="search-results"></div></div>
+  </div>
+  <div class="tab-body hidden" id="tab-architecture" role="tabpanel">
+    <p class="section-lead">この図は公式 <code>bot/runtime.py</code> に基づきます。各モジュールは回答を提案しますが、最終的な採択を決めるのは arbiter です。</p>
+    <div class="arch-diagram"><div class="arch-node input-node">USER INPUT <strong>質問</strong></div><div class="arch-down">↓</div><div class="arch-node memory-node">OBSERVE <strong>会話の観察・記憶更新</strong></div><div class="arch-down">↓</div><div class="arch-fan"><div class="arch-node">RULE A<small>respond()</small></div><div class="arch-node">RULE B<small>respond()</small></div><div class="arch-node">RULE C<small>respond()</small></div></div><div class="arch-down">↓ 候補を集約</div><div class="arch-node arbiter-node">ARBITER <strong>どの候補を選ぶ？</strong></div><div class="arch-down">↓</div><div class="arch-node output-node">REPLY <strong>回答 + メモリ更新</strong></div></div>
+    <div class="arch-grid" id="architectureStats"></div>
+    <p class="note-block">注：優先度は候補の並び順です。採択は優先度だけでは決まらず、arbiterが文脈や例外条件を適用します。どの規則が重要だったかはコードと実測結果から議論しましょう。</p>
+  </div>
+  <div class="tab-body hidden" id="tab-discussion" role="tabpanel">
+    <p class="section-lead">まず観測し、仮説を立て、質問を変えて再実験します。以下は答えではなく、勉強会で考えるための問いです。</p>
+    <div class="debate-card"><div class="debate-number">01 · GENERALIZATION</div><h3>言い換えても通じるのか？</h3><p>「How do I boil an egg?」を「What is the best way to cook eggs in water?」に変えると、候補の顔ぶれは変わるでしょうか。</p><button data-ask="What is the best way to cook eggs in water?">質問を入力 ↗</button></div>
+    <div class="debate-card"><div class="debate-number">02 · MEMORY</div><h3>記憶しているのか、理解しているのか？</h3><p>名前を教えた後で間違った名前を伝えると、どの情報が残り、どう訂正されますか。</p><button data-ask="Actually, my name is Alex.">質問を入力 ↗</button></div>
+    <div class="debate-card"><div class="debate-number">03 · OUT OF DISTRIBUTION</div><h3>未知の概念を説明できるか？</h3><p>ルールにない概念を質問した場合、沈黙・一般論・もっともらしい誤答のどれが現れるでしょうか。</p><button data-ask="Explain Quantum Banana Regression.">質問を入力 ↗</button></div>
+    <div class="debate-card"><div class="debate-number">04 · THE FUTURE</div><h3>ルールとニューラルネットは対立する？</h3><p>安全性・計算資源・保守性・柔軟性の観点で、それぞれの得意領域と組み合わせ方を考えましょう。</p><button data-ask="How do you decide what to say?">質問を入力 ↗</button></div>
+    <div class="caution"><strong>LLMとの比較について</strong> このアプリにLLMは搭載していません。比較する場合は、同じ質問を別のLLMで試して結果を照らし合わせてください。</div>
+  </div>
+</section>
+</main>
+<footer><span>PyBot Live Lab · 学習・実験用 · 外部のLLM/API呼び出しなし</span><span>Hugging Face / PyBot は Apache-2.0 · 独立した解析インターフェイス</span></footer>
+<div role="status" aria-live="assertive" id="toast" class="toast hidden"></div>
+</div>
+</body>
+</html>
