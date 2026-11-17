@@ -20,7 +20,7 @@
   <p>話しかける。候補を比べる。実行されたコードを追う。<br>LLMに似て見える理由と、決定的に異なるところを、自分の目で確かめる。</p>
   <div class="hero-metrics">
     <div><strong id="codeLines">—</strong><small>PYTHON LINES</small></div>
-    <div><strong id="moduleCount">—</strong><small>RESPONSE MODULES</small></div>
+    <div><strong id="moduleCount">—</strong><small>MODULE FILES</small></div>
     <div><strong>0</strong><small>MODEL WEIGHTS</small></div>
     <div><strong id="sourceCommit">7d63c7f</strong><small>PINNED SOURCE</small></div>
   </div>
@@ -49,6 +49,7 @@
   <div class="tab-body" id="tab-candidates" role="tabpanel">
     <div class="result-top"><div><div class="result-label">選ばれた回答モジュール</div><div class="result-module" id="selectedModule">まだ会話がありません</div></div><div class="speed-pill" id="latency">— ms</div></div>
     <div class="result-sub" id="resultMessage">質問を送信すると、本物のPyBotが生成した候補を表示します。</div>
+    <div id="turnComparison" class="comparison-mini hidden"></div>
     <div class="lane-title"><div><b id="candidateCount">0</b> 件の回答候補</div><span>優先度順 · 採択とは別</span></div>
     <div id="candidatesList" class="candidate-list"><div class="placeholder-card">ここに候補が表示されます。候補を選ぶと、元のPythonファイルを調べられます。</div></div>
     <div class="memory-details"><details><summary>メモリの状態を調べる <span>展開 ↘</span></summary><div id="memoryView" class="memory-view">まだ記録はありません。</div></details></div>
@@ -56,6 +57,7 @@
   <div class="tab-body hidden" id="tab-code" role="tabpanel">
     <div class="code-intro"><div><div class="result-label">SOURCE EXPLORER</div><div id="codeTitle" class="code-title">候補を選ぶとコードを開きます</div></div><button id="traceBtn" class="accent-btn" disabled>↯ 実行行を追跡</button></div>
     <div class="trace-note" id="traceNote">実行追跡は会話を固定seedで再実行します。元の会話には影響しません。</div>
+    <div class="source-switch"><button id="moduleBtn" title="候補を出したモジュール">回答モジュール</button><button id="arbiterBtn" title="回答を選んだ選択器">回答選択器 arbiter.py</button></div>
     <div class="code-toolbar"><button id="prevPage" title="前のソース範囲">←</button><span id="codeRange">—</span><button id="nextPage" title="次のソース範囲">→</button><a id="githubFileLink" href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">GitHubで開く ↗</a></div>
     <div id="codeView" class="code-view"><div class="placeholder-code"># ここにPyBotの実際のコードが表示されます</div></div>
     <div class="trace-legend"><span><i class="line-hit"></i>再実行時に通過した行</span><span id="traceCount">実行追跡前</span></div>
