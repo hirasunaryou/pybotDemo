@@ -104,14 +104,37 @@ function selectTurn(i) {
   renderCandidateList();
   tab("candidates");
 }
+function renderTurnComparison(t) {
+  const box = $("turnComparison");
+  if (!t || state.active < 1) { box.classList.add("hidden"); return; }
+  const prev = state.turns[state.active - 1];
+  const a = new Set(prev.candidates.map(c => c.module));
+  const b = new Set(t.candidates.map(c => c.module));
+  const common = [...a].filter(x => b.has(x)).length;
+  const total = new Set([...a,...b]).size;
+  const share = total ? Math.round(100 * common / total) : 100;
+  const switched = (prev.module || "fallback") !== (t.module || "fallback");
+  box.classList.remove("hidden");
+  box.innerHTML = '<div class="compare-heading">↔ 直前の質問と比較（観測結果）</div>' +
+    '<div class="compare-pair"><span>' + esc(prev.module || "fallback") +
+    '</span><span class="compare-arrow">→</span><span>' + esc(t.module || "fallback") + '</span></div>' +
+    '<div class="compare-bar"><div style="width:' + share + '%"></div></div>' +
+    '<div class="compare-caption">回答候補のモジュール一致率 ' + share + '% (' + common + '/' + total +
+    ' 種類) · 採択モジュール ' + (switched ? "変化あり" : "変化なし") +
+    '<br>※ 類似性の指標は候補の集合であり、質問の意味や回答品質の評価ではありません。</div>';
+}
+
 function renderCandidateList() {
   const t = state.turns[state.active];
   $("selectedModule").textContent = t ? (t.module || "runtime fallback") : "まだ会話がありません";
   $("latency").textContent = t ? t.elapsed_ms + " ms" : "— ms";
   $("candidateCount").textContent = t ? String(t.candidate_count) : "0";
   $("resultMessage").textContent = t ? "実測された候補から arbiter が " +
-    (t.module || "fallback") + " を選択しました。候補をクリックしてコードを確認できます。" :
+    (t.module || "fallback") + " を選択しました。" +
+    (t.chosen_index > 0 ? " 優先度順の先頭以外が採択されています。" : "") +
+    " 候補をクリックしてコードを確認できます。" :
     "質問を送信すると、本物のPyBotが生成した候補を表示します。";
+  renderTurnComparison(t);
   if (!t) return;
   $("candidatesList").innerHTML = t.candidates.length ? t.candidates.map((c, i) => {
     const picked = i === t.chosen_index;
@@ -171,6 +194,7 @@ function renderSource() {
   $("prevPage").disabled = d.start <= 1;
   $("nextPage").disabled = d.start + d.lines.length - 1 >= d.total;
   $("traceBtn").disabled = state.busy || !state.module || state.active < 0;
+  $("moduleBtn").disabled = !state.module;
 }
 async function traceSource() {
   if (!state.module || state.active < 0 || state.busy) return;
@@ -299,6 +323,8 @@ function init() {
     }
   };
   $("traceBtn").onclick = traceSource;
+  $("moduleBtn").onclick = () => state.module && openSource("bot/modules/" + state.module + ".py", null, state.module);
+  $("arbiterBtn").onclick = () => openSource("bot/modules/arbiter.py", 200);
   $("resetBtn").onclick = resetConversation;
   $("exportBtn").onclick = exportSession;
   $("prevPage").onclick = () => state.source && openSource(state.source.path, state.source.start - 110);
