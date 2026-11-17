@@ -118,10 +118,11 @@ function renderTurnComparison(t) {
   box.innerHTML = '<div class="compare-heading">↔ 直前の質問と比較（観測結果）</div>' +
     '<div class="compare-pair"><span>' + esc(prev.module || "fallback") +
     '</span><span class="compare-arrow">→</span><span>' + esc(t.module || "fallback") + '</span></div>' +
-    '<div class="compare-bar"><div style="width:' + share + '%"></div></div>' +
+    '<div class="compare-bar"><div id="compareFill"></div></div>' +
     '<div class="compare-caption">回答候補のモジュール一致率 ' + share + '% (' + common + '/' + total +
     ' 種類) · 採択モジュール ' + (switched ? "変化あり" : "変化なし") +
     '<br>※ 類似性の指標は候補の集合であり、質問の意味や回答品質の評価ではありません。</div>';
+  $("compareFill").style.width = share + "%";
 }
 
 function renderCandidateList() {
@@ -210,11 +211,8 @@ async function traceSource() {
       data.calls.map(c => '<div class="call-row"><span>' + esc(c.file) + ' · ' + esc(c.fn) +
         '()</span><span>' + esc(c.count) + ' 回</span></div>').join("") :
       "対象の関数呼び出しは観測されませんでした。";
-    if (state.source && state.source.path === "bot/modules/" + module + ".py") {
-      renderSource();
-    } else {
-      await openSource("bot/modules/" + module + ".py", null, module);
-    }
+    // Keep whichever source (module or arbiter) is currently open and highlight its observed lines.
+    if (state.source) renderSource();
     toast(data.replay_equal ? "実行行を記録しました（再実行結果も一致）" : "実行行を記録しましたが、再実行結果に差がありました", !data.replay_equal);
   } catch (err) { toast(err.message, true); }
   finally { toggleBusy(false); }
