@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PyBot Live Lab｜図解操作マニュアル</title><link rel="stylesheet" href="/docs/manual.css"></head>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PyBot Live Lab｜図解操作マニュアル</title><link rel="stylesheet" href="manual.css"></head>
 <body>
-<header class="hero"><div class="wrap"><div class="overline">PYBOT LIVE LAB · USER GUIDE</div><h1>ルールだけで動くAIを<br><em>ライブで解剖する。</em></h1><p>セットアップ、会話実演、候補比較、ソースコード追跡、LLMとの比較議論まで。<br>初めて触る方にも、深く分析したい方にも。</p><a class="primary" href="/">アプリ画面に戻る ↗</a></div></header>
+<header class="hero"><div class="wrap"><div class="overline">PYBOT LIVE LAB · USER GUIDE</div><h1>ルールだけで動くAIを<br><em>ライブで解剖する。</em></h1><p>セットアップ、会話実演、候補比較、ソースコード追跡、LLMとの比較議論まで。<br>初めて触る方にも、深く分析したい方にも。</p><a class="primary" href="../">アプリ画面に戻る ↗</a></div></header>
 <nav class="toc wrap"><a href="#start">起動する</a><a href="#interface">画面を見る</a><a href="#play">会話する</a><a href="#trace">コードを追う</a><a href="#learn">議論する</a><a href="#faq">トラブル対処</a></nav>
 <main class="wrap">
 <section id="start"><div class="section-label">01 / SETUP</div><h2>起動はダブルクリックだけ</h2><p>必要なものは <strong>Python 3.8以上</strong>。アプリも元のPyBotも、LLM・GPU・外部APIキー・pipライブラリを使いません。初回だけ固定版PyBotのソース取得にインターネット接続が必要です。</p>
 <div class="cards cols2"><article><div class="tag">MAC</div><h3>Macで起動</h3><code class="file">start_mac.command</code><p>ダウンロードしたZIPを展開し、このファイルをダブルクリックします。保護機能にブロックされた場合は、右クリック→「開く」で内容を確認して実行します。</p><small>ターミナルからは <code>python3 launch.py</code> でも起動できます。</small></article><article><div class="tag">WINDOWS</div><h3>Windowsで起動</h3><code class="file">start_windows.bat</code><p>ZIPを展開し、このファイルをダブルクリックします。Python launcher（py）を優先し、なければpythonコマンドを使います。</p><small>ターミナルからは <code>py -3 launch.py</code> でも起動できます。</small></article></div>
 <div class="info"><strong>初回の動き：</strong> アプリが <a href="https://github.com/huggingface/pybot">huggingface/pybot</a> の固定コミットを取得し、<code>.runtime/pybot</code> に保存します。次回以降は再ダウンロードせず、ローカルで使えます。初回にダウンロードできない場合、既存の公式PyBotを環境変数 <code>PYBOT_DEMO_SOURCE</code> で指定できます。</div></section>
 <section id="interface"><div class="section-label">02 / SCREEN TOUR</div><h2>どこを見ればよい？</h2><p>左半分は<strong>会話</strong>、右半分は<strong>回答生成の観察</strong>です。右パネルのタブを変えれば「候補」「コード」「内部構造」「議論」を順番に見られます。</p>
-<figure><a href="/docs/images/overview.png" target="_blank"><img src="/docs/images/overview.png" alt="実アプリのスクリーンショット：会話と回答候補の比較画面"></a><figcaption>図1｜実画面スクリーンショット。クリックすると拡大します。UI変更時は自動ブラウザ撮影で更新します。</figcaption></figure>
+<figure><a href="images/overview.png" target="_blank"><img src="images/overview.png" alt="実アプリのスクリーンショット：会話と回答候補の比較画面"></a><figcaption>図1｜実画面スクリーンショット。クリックすると拡大します。UI変更時は自動ブラウザ撮影で更新します。</figcaption></figure>
 <div class="cards cols3"><article><div class="tag">01 · PLAYGROUND</div><h3>質問する</h3><p>左下の入力欄でEnterを押します。Shift+Enterなら改行できます。初回だけPyBotの大量のPythonを読み込むので時間がかかることがあります。</p></article><article><div class="tag">02 · CANDIDATES</div><h3>候補を比べる</h3><p>右側にモジュール名、<code>PRIORITY</code>、各候補の内容、採択された回答が表示されます。応答時間も実測値です。</p></article><article><div class="tag">03 · SOURCE</div><h3>ルールを読む</h3><p>候補をクリックすると、実際の <code>bot/modules/*.py</code> が開きます。ソース検索からもコードに飛べます。</p></article></div></section>
 <section id="play"><div class="section-label">03 / LIVE PLAYGROUND</div><h2>まずは3つの実験</h2><div class="cards cols1">
 <article><div class="tag">EXPERIMENT 01 · MEMORY</div><h3>名前を覚える？訂正できる？</h3><pre>Hi, I'm Sam.
@@ -19,7 +19,7 @@ What's my name now?</pre><p>会話中の名前が記憶されたか、訂正後�
 What's the best way to cook eggs in water?</pre><p>意味が近くても、候補を出すモジュールの組み合わせが変化する可能性があります。まず予想してから比較します。</p></article>
 <article><div class="tag">EXPERIMENT 03 · UNKNOWN CONCEPT</div><h3>未知の概念と他言語は？</h3><pre>Explain Quantum Banana Regression.
 こんにちは。私の名前は太郎です。</pre><p>架空概念や英語以外の入力に対して、既存ルールがどう振る舞うかを見ます。出力がもっともらしくても、正確だとは限りません。</p></article></div></section>
-<section id="trace"><div class="section-label">04 / TRACE & CODE</div><h2>「この返答は、どこから来たのか」</h2><figure><a href="/docs/images/code-trace.png" target="_blank"><img src="/docs/images/code-trace.png" alt="実アプリのソース追跡のスクリーンショット：実行行を強調表示"></a><figcaption>図2｜ソース追跡画面の実スクリーンショット。緑色の行は再実行で通過した行です。</figcaption></figure>
+<section id="trace"><div class="section-label">04 / TRACE & CODE</div><h2>「この返答は、どこから来たのか」</h2><figure><a href="images/code-trace.png" target="_blank"><img src="images/code-trace.png" alt="実アプリのソース追跡のスクリーンショット：実行行を強調表示"></a><figcaption>図2｜ソース追跡画面の実スクリーンショット。緑色の行は再実行で通過した行です。</figcaption></figure>
 <div class="steps"><div><b>1</b><p>PyBotに質問し、右側の候補を確認します。</p></div><div><b>2</b><p>調べたい候補をクリックして「ソース追跡」を開きます。対応するPythonファイルに移動します。</p></div><div><b>3</b><p>「実行行を追跡」を押します。会話を同じseedで別メモリに再実行して、選択した候補モジュールと <code>arbiter.py</code> の通過行を採取します。</p></div><div><b>4</b><p>緑の実行行、関数呼び出し一覧、元の返答との一致・不一致を観察します。疑問を持った行は元ファイルをGitHubで開けます。</p></div></div>
 <div class="info"><strong>発展：もっと深いコード探索</strong>　「回答モジュール」と「回答選択器 arbiter.py」を切り替え、両者の処理を比較できます。「実行された関数とその回数」を開くと、回答モジュールから呼び出された補助関数の一覧も表示され、クリックでその定義位置へ移動できます。関数の呼び出しを観測したことと、関数内部のすべての実行行を観測したことは別です。さらに連続する2つの質問では、回答候補となったモジュール集合の重なりを表示します。これは<strong>回答内容の意味的類似度ではありません</strong>。</div>
 <div class="warning"><strong>重要：二つの証拠の種類を分けてください。</strong><p>「候補・優先度・採択・時間」は<b>元の質問の実測値</b>です。一方「通過行」は<b>再実行の観測値</b>です。再実行結果が違えば、元の会話と同一経路だとは断言できません。また、行を通った事実だけで採択の因果理由を確定することもできません。</p><p><code>PRIORITY</code> はニューラルネットの確率・確信度ではなく、回答モジュールの優先度です。採択は、優先度以外の規則を使う <code>arbiter</code> によって決まります。</p></div></section>
@@ -34,5 +34,5 @@ What's the best way to cook eggs in water?</pre><p>意味が近くても、候�
 <details><summary>再実行結果が元と一致しない</summary><p>一部の内部状態や乱数、実行条件で差が出る場合があります。画面の警告に従い、行トレースを元の実行の証拠とは扱わず、再実行時の観測として考察してください。</p></details>
 <details><summary>会話は外部へ送られる？</summary><p>PyBotへの質問はPC内で処理し、サーバーは<code>127.0.0.1</code>だけで待ち受けます。質問を外部APIに送らず、自動保存もしません。「↓保存」操作時のみ、ブラウザからJSONをダウンロードします。</p></details>
 </section></main>
-<footer><div class="wrap"><b>PYBOT LIVE LAB</b><span>独立した勉強会用解析ツール / Hugging Face PyBot: Apache-2.0</span><a href="/">アプリに戻る ↗</a></div></footer>
+<footer><div class="wrap"><b>PYBOT LIVE LAB</b><span>独立した勉強会用解析ツール / Hugging Face PyBot: Apache-2.0</span><a href="../">アプリに戻る ↗</a></div></footer>
 </body></html>
