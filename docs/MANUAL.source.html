@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>PyBot Live Lab | フィールドガイド</title>
+<!--MANUAL_STYLES-->
+</head>
+<body>
+<header class="guide-top">
+  <div class="guide-container guide-top-inner">
+    <a class="guide-brand" href="https://github.com/hirasunaryou/pybotDemo" target="_blank" rel="noopener"><span class="brand-mark">P<span>✳</span></span><span>PYBOT <strong>LIVE LAB</strong><small>FIELD NOTES / RESEARCH EDITION</small></span></a>
+    <div class="header-right"><span class="offline-pill"><span class="dot"></span> STANDALONE HTML</span><a class="top-source" href="https://github.com/hirasunaryou/pybotDemo">GitHub ↗</a></div>
+  </div>
+</header>
+<div class="manual-hero">
+  <div class="guide-container hero-layout">
+    <div class="hero-copy">
+      <div class="chapter-kicker"><span class="line"></span> THE LAB MANUAL <span class="edition">/ 2026.11</span></div>
+      <h1>ルールで動くAIを、<br><em>目の前で解剖する。</em></h1>
+      <p class="hero-lead">自然な会話の裏側で、何が起きているのか。<br>回答候補を見比べ、コードを追い、LLMとの違いを考える。</p>
+      <div class="hero-actions"><a href="#quickstart" class="hero-main">01 · まず動かす <span>↗</span></a><a href="#experiment" class="hero-second">実験の進め方 <span>↘</span></a></div>
+      <div class="hero-foot"><span>Pythonのみ</span><span>重みなし</span><span>実コードを観測</span></div>
+    </div>
+    <div class="hero-visual">
+      <div class="mini-top"><span>RULE SYSTEM</span><span class="mini-live">● LIVE</span></div>
+      <div class="visual-prompt"><small>INPUT</small><strong>“What's my name?”</strong></div>
+      <div class="visual-divider"><span>↓</span><small>RULES + MEMORY</small></div>
+      <div class="visual-stack">
+        <div><i>01</i><span><b>memory_store</b><small>会話から名前を参照</small></span><strong class="tick">✓</strong></div>
+        <div><i>02</i><span><b>chat</b><small>候補を作成</small></span><strong>⋯</strong></div>
+        <div><i>03</i><span><b>arbiter</b><small>どの候補を採択するか判断</small></span><strong>↳</strong></div>
+      </div>
+      <div class="visual-output"><small>OUTPUT</small><strong>“You're Sam.”</strong><span>NO MODEL WEIGHTS</span></div>
+      <div class="visual-caption">※ 実験概念図。モジュールの例示であり特定ターンの実行ログではありません。</div>
+    </div>
+  </div>
+</div>
+<nav class="guide-nav" aria-label="マニュアル章一覧"><div class="guide-container nav-inner">
+  <a href="#quickstart"><b>01</b> 起動</a><a href="#screen"><b>02</b> 画面案内</a><a href="#voice"><b>03</b> 音声入力</a><a href="#experiment"><b>04</b> 実験</a><a href="#source"><b>05</b> コード解析</a><a href="#workshop"><b>06</b> 勉強会</a><a href="#question"><b>07</b> FAQ</a>
+</div></nav>
+<main class="guide-container">
+<section class="chapter" id="quickstart">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 01 <span>/ START HERE</span></div><h2>はじめるまで、<br><span>3つの動作。</span></h2><p>モデルのダウンロードもGPUも不要。最初の一度だけ、元のPyBotの公開ソースを取得します。</p></div>
+  <div class="step-grid">
+    <article class="step-card"><div class="step-top"><b>01</b><span>DOWNLOAD</span></div><div class="step-icon"><svg width="54" height="54" viewBox="0 0 54 54" fill="none"><rect x="8" y="12" width="38" height="30" rx="7" stroke="currentColor" stroke-width="2"/><path d="M27 18v17m-7-7 7 7 7-7M17 46h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>アプリを取得</h3><p><a href="https://github.com/hirasunaryou/pybotDemo">pybotDemoリポジトリ</a>から Code → Download ZIP。展開したフォルダを開きます。</p></article>
+    <article class="step-card"><div class="step-top"><b>02</b><span>ONE CLICK</span></div><div class="step-icon"><svg width="54" height="54" viewBox="0 0 54 54" fill="none"><rect x="7" y="9" width="40" height="31" rx="6" stroke="currentColor" stroke-width="2"/><path d="M19 46h16M27 40v6M19 21l6 5-6 5m10 0h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>起動ファイルを開く</h3><p>Macは <code>start_mac.command</code>、Windowsは <code>start_windows.bat</code> をダブルクリック。</p></article>
+    <article class="step-card"><div class="step-top"><b>03</b><span>EXPLORE</span></div><div class="step-icon"><svg width="54" height="54" viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="19" stroke="currentColor" stroke-width="2"/><path d="m20 33 6-15 9 7-15 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="26" cy="25" r="2" fill="currentColor"/></svg></div><h3>ブラウザで質問</h3><p>アプリがブラウザで開きます。「名前と記憶」のシナリオを選んで送信すれば準備完了。</p></article>
+  </div>
+  <div class="two-notes"><div class="soft-note"><strong>Mac</strong><span>macOSの保護が初回実行を止めたときは、ファイルを右クリック→「開く」。実行できない場合は <code>python3 launch.py</code> でも起動可能です。</span></div><div class="soft-note"><strong>Windows</strong><span>Python 3.8以上が必要です。Windowsのターミナルから <code>py -3 launch.py</code> でも起動できます。</span></div></div>
+  <div class="micro-note">初回はインターネット接続が必要です。取得したPyBotは <code>.runtime/pybot</code> に保存され、通常2回目以降は再取得しません。PyBot自体の会話処理には外部LLM APIを使用しません。</div>
+</section>
+<section class="chapter" id="screen">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 02 <span>/ ORIENTATION</span></div><h2>一画面で、<span>会話から根拠まで。</span></h2><p>まず左側で話しかけ、次に右側で採択された候補とコードを見る。難しい用語を覚える必要はありません。</p></div>
+  <div class="screen-figure"><div class="figure-head"><span><i></i> ACTUAL APPLICATION SCREEN</span><span>UI CAPTURE / PYBOT REAL RUN</span></div><img src="images/overview.png" alt="実アプリ画面。左がPyBotとの会話、右が候補の一覧と採択結果。" width="1460"><div class="figure-footer"><span><b>01</b> 左側：会話を始める</span><span><b>02</b> 右側：候補を見る</span><span><b>03</b> 候補をクリックしてコードへ</span></div></div>
+  <div class="three-guide"><div><strong>PLAYGROUND</strong><h3>会話</h3><p>質問するとPyBotが返信。応答時間と採択モジュールが表示されます。</p></div><div><strong>CANDIDATES</strong><h3>候補比較</h3><p>複数のルールが作った回答候補と優先度を表示。採択されたものを識別できます。</p></div><div><strong>SOURCE</strong><h3>コード探索</h3><p>対応するPythonの実コードへ移動。実行行の追跡と検索も行えます。</p></div></div>
+</section>
+<section class="chapter" id="voice">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 03 <span>/ VOICE INPUT</span></div><h2>「質問する」を、<span>話すだけに。</span></h2><p>会場から思いついた疑問を、マイクから文字に変換。送信する前にテキストを確認・修正できます。</p></div>
+  <div class="voice-panel"><div class="voice-panel-left"><span class="voice-eyebrow">SPEECH TO TEXT</span><div class="mic-round"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg></div><div class="waves"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="voice-state">LISTENING <span>●</span></div><small>説明用イラスト。実際にはブラウザの音声認識を利用します。</small></div><div class="voice-panel-right"><div class="voice-sequence"><b>01</b><div><h3>マイクをクリック</h3><p>入力欄の「音声」を押し、マイクへのアクセスを許可します。</p></div></div><div class="voice-sequence"><b>02</b><div><h3>英語・日本語を話す</h3><p>音声言語を選択し、質問を話します。文字起こしが入力欄に表示されます。</p></div></div><div class="voice-sequence"><b>03</b><div><h3>確認して送信</h3><p>結果を編集して「送信」。音声認識終了だけではPyBotに質問を送信しません。</p></div></div></div></div>
+  <div class="warning-note"><div class="warning-icon">!</div><p><strong>プライバシーと対応ブラウザ</strong><br>文字起こしにはブラウザ標準のSpeechRecognitionを使用します。音声がブラウザ提供元のサービスに送られる場合があるため、<b>完全オフラインの音声認識とは保証できません</b>。PyBot本体は音声データを受け取らず、認識後の文字だけを扱います。非対応ブラウザではMacの音声入力、Windowsの <code>Win+H</code> を使えます。</p></div>
+</section>
+<section class="chapter" id="experiment">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 04 <span>/ EXPERIMENT</span></div><h2>正解を探すより、<span>反応の違いを楽しむ。</span></h2><p>質問を少し変えたとき、採択候補と内部のルールはどう変わるでしょうか。以下の3つが入口です。</p></div>
+  <div class="experiment-list"><article><div class="experiment-top"><span>01 / MEMORY</span><span class="experiment-badge">初級・上級共通</span></div><h3>名前を覚えているように見える？</h3><div class="prompt-row"><code>Hi, I'm Sam.</code><code>What's my name?</code><code>Actually, my name is Alex.</code></div><p>何を「記憶」して、何を文字列として扱うのか。メモリの変化と採択候補を照らし合わせます。</p></article>
+  <article><div class="experiment-top"><span>02 / GENERALIZATION</span><span class="experiment-badge">言い換え比較</span></div><h3>同じ意味、違う言い方。</h3><div class="prompt-row"><code>How long should I boil an egg?</code><code>What's the best way to cook eggs in water?</code></div><p>候補モジュールの重なりが変わったら、なぜか。LLMの汎化能力と比較する際の起点になります。</p></article>
+  <article><div class="experiment-top"><span>03 / UNKNOWN INPUT</span><span class="experiment-badge">弱点を探す</span></div><h3>知識にないことを尋ねる。</h3><div class="prompt-row"><code>Explain Quantum Banana Regression.</code><code>こんにちは、名前を覚えられますか？</code></div><p>架空の概念や言語の違いに対し、ルールはどこまで対応できるでしょうか。</p></article></div>
+</section>
+<section class="chapter" id="source">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 05 <span>/ CODE TRACE</span></div><h2>「なぜこの回答？」を、<span>ソースまで追う。</span></h2><p>候補をクリックすると実際のPythonファイルを表示。「実行行を追跡」でルールが通った箇所を調べます。</p></div>
+  <div class="trace-figure"><div class="figure-head"><span><i></i> REAL EXECUTION TRACE</span><span>ACTUAL UPSTREAM CODE</span></div><img src="images/code-trace.png" alt="実コードのソース追跡画面。Pythonの通過行が強調されている。" width="1460"></div>
+  <div class="trace-flow"><div><span>①</span><b>候補を選ぶ</b><small>本物の回答候補</small></div><div class="flow-connector">→</div><div><span>②</span><b>コードを開く</b><small>実ソースを表示</small></div><div class="flow-connector">→</div><div><span>③</span><b>再実行で追跡</b><small>通過行を表示</small></div><div class="flow-connector">→</div><div><span>④</span><b>議論する</b><small>条件・文脈の違い</small></div></div>
+  <div class="evidence"><div class="evidence-head">OBSERVED <span>≠</span> EXPLAINED</div><div class="evidence-cols"><div><b>直接観測した事実</b><p>元の質問で生成された候補・採択モジュール・優先度・応答時間。</p></div><div><b>再実行から得たトレース</b><p>固定seedで会話を別途再実行した時の通過行と関数呼び出し。元の応答と一致したかも表示します。</p></div></div><p class="evidence-flag">通過行は「その行が回答を決めた証明」ではありません。採択理由は前後の条件と候補を読んで検証してください。</p></div>
+</section>
+<section class="chapter" id="workshop">
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 06 <span>/ DISCUSSION</span></div><h2>45分で、<span>疑問を次の疑問につなぐ。</span></h2><p>教える側が一方的に説明するより、目の前の挙動から仮説を立ててコードで確かめる流れにします。</p></div>
+  <div class="agenda"><div><strong>00—10 <small>MIN</small></strong><h3>何がLLMライクなのか？</h3><p>内部構造をざっと見て、会話に見える理由を予想する。</p></div><div><strong>10—20 <small>MIN</small></strong><h3>観客が質問する</h3><p>音声で質問を集め、名前・言い換え・未知語で反応を比べる。</p></div><div><strong>20—35 <small>MIN</small></strong><h3>ソースコードを解剖</h3><p>採択・非採択候補、優先度、記憶、arbiterを調べる。</p></div><div><strong>35—45 <small>MIN</small></strong><h3>LLMとの未来を議論</h3><p>汎化、説明可能性、保守、計算資源、ハイブリッドを考える。</p></div></div>
+  <div class="level-panels"><article><span>BEGINNER</span><h3>初級者への問い</h3><p>「同じ質問を違う言葉で言うと、どうなる？」「覚えているように見えるのはどこに保存しているから？」</p></article><article><span>ADVANCED</span><h3>上級者への問い</h3><p>「規則競合時のルーティング設計は？」「テスト分布の外へ一般化するか？」「シンボリック表現と分布的表現はどう補完し合う？」</p></article></div>
+  <div class="research-banner"><div><span>RESEARCH LIBRARY</span><h3>議論が深まったら、原典へ。</h3><p>PyBot公式ソース・評価資料、ELIZA原著論文、Bitter Lessonへのリンクと、図解した整理ページを用意しています。</p></div><a href="https://github.com/hirasunaryou/pybotDemo/blob/main/docs/RESEARCH.html" target="_blank" rel="noopener">資料ライブラリ ↗</a></div>
+</section>
+<section class="chapter" id="question"><div class="chapter-header"><div class="chapter-id">CHAPTER 07 <span>/ HELP DESK</span></div><h2>困ったときの、<span>最短ルート。</span></h2></div>
+  <div class="faq"><details><summary>CSSや画像が表示されない</summary><p>この配布版 <code>MANUAL.html</code> はCSSと実スクリーンショットを同梱した単体ファイルです。ブラウザで直接開いてください。もしリンクが生きない場合も、本文・図解はネット接続なしで読めます。</p></details>
+  <details><summary>マイクボタンが使えない</summary><p>ブラウザによりSpeechRecognitionが利用できない場合があります。Macの音声入力、Windowsの <code>Win+H</code> を試してください。マイクの許可も確認します。</p></details>
+  <details><summary>Pythonが見つからない</summary><p><a href="https://www.python.org/downloads/">Python公式サイト</a>からPython 3.8以上を導入してください。アプリの本体には追加pipパッケージはありません。</p></details>
+  <details><summary>最初の回答が遅い</summary><p>初回は大量のPythonルールを読み込みます。LLMの重みをロードしているわけではありません。</p></details>
+  <details><summary>再実行のトレースが元と違う</summary><p>文脈や乱数、内部状態により再実行の結果が変わる場合があります。画面に「不一致」と出たら、その通過行を元の実行の証拠として扱わないでください。</p></details>
+  <details><summary>PyBotの正式な論文はある？</summary><p>2026年11月18日時点で確認した一次情報ではPyBot専用の査読論文・公式ホワイトペーパーは確認できません。公式のREADME、コード、評価データ、性能推移図が主な資料です。</p></details></div>
+</section>
+</main>
+<footer class="guide-footer"><div class="guide-container footer-inner"><div><strong>PYBOT LIVE LAB</strong><p>問いを立て、観察し、コードに戻る。</p></div><div><p>本HTMLの書式・図・画像はファイル内に埋め込まれています。<br>外部リンクの閲覧にはネット接続が必要です。</p><small>PyBot © original contributors · Apache-2.0 · Independent educational tool</small></div></div></footer>
+</body>
+</html>
