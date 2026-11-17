@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PyBot Research Atlas | 原典としくみの図解</title>
+<meta name="description" content="PyBotの一次資料、内部構造、評価方法、ELIZAとBitter Lessonを図解する勉強会資料。">
+<style>
+:root{--ink:#132e40;--navy:#0a2031;--navy2:#173b4d;--paper:#f7f8f5;--white:#fff;--teal:#38ccb0;--muted:#617986;--line:#dce6e5;--amber:#ffc88a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Segoe UI",sans-serif;color:var(--ink);line-height:1.8;font-size:14px;-webkit-font-smoothing:antialiased}a{color:#0a8678;text-underline-offset:3px}.wrap{max-width:1170px;margin:auto;padding:0 40px}
+header{background:radial-gradient(ellipse at 85% -10%,#245663,transparent 48%),var(--navy);color:#edfffa}
+.top{padding:22px 0;border-bottom:1px solid #2b4e5c;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:14px;font-weight:900;letter-spacing:.1em}.brand span{color:#64dfc8}.meta{font-size:10px;letter-spacing:.1em;color:#99b9c5;font-weight:750}
+.hero{padding:74px 0 86px;display:grid;grid-template-columns:1.07fr .93fr;gap:63px;align-items:center}
+.kicker{color:#68e4d1;font-size:11px;letter-spacing:.2em;font-weight:900}
+.hero h1{font-size:clamp(35px,4.7vw,55px);line-height:1.38;letter-spacing:-.06em;margin:22px 0 18px}
+.hero h1 em{color:#79e6ce;font-style:normal}
+.hero p{color:#b6cdda;line-height:2;font-size:14px}
+.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px}
+.hero-actions a{display:inline-block;text-decoration:none;border-radius:9px;padding:11px 16px;font-weight:850;font-size:12px;color:#d8fff4;background:#245063;border:1px solid #477c83}
+.hero-actions a:first-child{background:#68e0c9;color:#10313b;border:0}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric{border:1px solid #3b6070;background:#1b3547;border-radius:13px;padding:23px 22px}
+.metric b{font-size:38px;letter-spacing:-.06em;display:block;line-height:1.1;color:white}
+.metric small{font-size:10px;color:#86b7c1;letter-spacing:.1em;display:block;margin-top:14px}
+.metric:last-child b{color:#6be7cf}
+.nav{background:#fff;position:sticky;top:0;border-bottom:1px solid var(--line);z-index:10}
+.nav .wrap{display:flex;gap:28px;overflow-x:auto}.nav a{padding:15px 0;text-decoration:none;font-size:12px;font-weight:800;white-space:nowrap;color:#4f7280}.nav a:hover{color:#078a7c}
+section{padding:82px 0;border-bottom:1px solid var(--line);scroll-margin-top:48px}
+.eyebrow{font-size:11px;letter-spacing:.19em;color:#148c80;font-weight:900;margin-bottom:12px}
+h2{font-size:clamp(28px,3.3vw,38px);letter-spacing:-.05em;line-height:1.4;margin:0 0 12px}
+h2 em{font-style:normal;color:#128d7f}.lead{max-width:810px;color:var(--muted);font-size:14px;line-height:2;margin:0 0 28px}
+.origin-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+.origin-card{padding:30px;background:#fff;border:1px solid #d9e4e6;border-radius:14px;position:relative;overflow:hidden}
+.origin-card.dark{background:#102f43;color:#fff;border-color:#30607a}
+.origin-card .band{font-weight:900;font-size:10px;letter-spacing:.18em;color:#168b7d}
+.origin-card.dark .band{color:#76e6d1}
+.origin-card h3{font-size:21px;letter-spacing:-.04em;margin:10px 0 14px}
+.origin-card p{font-size:12px;line-height:1.95;color:#536b79;margin:0}
+.origin-card.dark p{color:#b4cad6}
+.mini-flow{display:flex;align-items:center;gap:7px;margin:21px 0}
+.mini-flow span{flex:1;text-align:center;background:#e6f6f1;border-radius:8px;padding:12px 6px;font-weight:900;font-size:11px;color:#126f68}
+.mini-flow i{color:#22a895;font-style:normal}
+.origin-card.dark .mini-flow span{background:#204f58;color:#a7fae8}
+.contrast-note{margin-top:16px;background:#e8f6f0;color:#246b68;border-left:4px solid #31b8a3;border-radius:5px;padding:15px 18px;font-size:12px;line-height:1.9}
+.pipeline{background:#112d3f;border-radius:17px;padding:28px;margin-top:22px;color:#e8f7f7}
+.pipeline-label{font-size:11px;letter-spacing:.16em;color:#75e7ce;font-weight:850}
+.pipe-track{display:grid;grid-template-columns:1fr 22px 1fr 22px 1fr 22px 1fr;align-items:center;gap:9px;margin-top:18px}
+.pipe-node{border:1px solid #43747e;background:#1e4355;padding:19px 11px;border-radius:10px;text-align:center}
+.pipe-node small{display:block;color:#8cdcca;letter-spacing:.14em;font-size:10px;font-weight:900}
+.pipe-node strong{display:block;font-size:15px;margin:6px 0}
+.pipe-node p{font-size:11px;color:#bad0db;margin:0;line-height:1.65}
+.pipe-node.picked{background:#23574e;border-color:#4dd7b6}
+.pipe-arrow{text-align:center;font-size:20px;color:#64e2ca}
+.pipeline-explain{margin-top:21px;border-top:1px solid #3c6772;padding-top:13px;color:#b2c9d2;font-size:11px}
+.composition{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;margin-top:31px}
+.composition-main{background:#fff;border:1px solid #dbe5e7;border-radius:13px;padding:26px}
+.composition-main h3,.explain h3{font-size:17px;margin:0 0 14px}
+.stackbar{display:flex;height:34px;border-radius:7px;overflow:hidden;background:#dce9e9}
+.stackbar div:nth-child(1){width:4%;background:#5ac8d7}.stackbar div:nth-child(2){width:17%;background:#91a4ef}.stackbar div:nth-child(3){width:50%;background:#20ae99}.stackbar div:nth-child(4){width:16%;background:#d5a66d}.stackbar div:nth-child(5){width:13%;background:#537b97}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px}
+.legend div{display:flex;gap:8px;align-items:center;font-size:12px;color:#4c6776}
+.legend i{width:11px;height:11px;display:inline-block;border-radius:3px;flex:0 0 11px}
+.legend strong{font-size:11px;font-weight:900;color:#21485b;margin-left:auto}
+.estimate{color:#899ba2;font-size:10px;margin:14px 0 0}
+.explain{background:#e4f3ef;border-radius:13px;padding:25px 26px}
+.explain p{font-size:12px;color:#4d706f;margin:10px 0}
+.arrow-tip{display:flex;gap:8px;align-items:center;margin-top:16px;color:#166f67;font-size:12px;font-weight:800}
+.benchmark-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.benchmark-card{background:#fff;border:1px solid #dae5e7;border-radius:14px;padding:28px}
+.benchmark-card h3{font-size:16px;margin:0 0 15px}
+.bench-result{display:flex;gap:12px;align-items:center}
+.bench-result b{font-size:56px;line-height:1;color:#109887;letter-spacing:-.08em}
+.bench-result span{color:#65818a;font-size:12px;max-width:190px}
+.bench-axis{height:14px;border-radius:12px;background:#e4edec;overflow:hidden;margin:28px 0 10px}
+.bench-axis i{display:block;width:26%;height:100%;background:#27b69f;border-radius:12px}
+.bench-ticks{display:flex;justify-content:space-between;color:#7f969c;font-size:11px}
+.small-p{font-size:12px;line-height:1.9;color:#5c7481}
+.bench-points{display:grid;gap:12px}
+.bench-points>div{padding:12px 15px;background:#eef5f2;border-radius:8px}
+.bench-points strong{font-size:12px}.bench-points small{display:block;color:#617a82;font-size:11px;line-height:1.7}
+.evidence-alert{margin:21px 0 0;padding:18px 22px;background:#fff8ed;border-left:4px solid #ecb16a;border-radius:6px;font-size:12px;color:#795b3c;line-height:1.9}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
+.source-card{border-radius:13px;background:#fff;border:1px solid #dce5e8;padding:23px;display:flex;flex-direction:column;gap:11px}
+.source-card .type{font-size:10px;font-weight:900;color:#128f7e;letter-spacing:.13em}
+.source-card h3{font-size:17px;line-height:1.55;margin:0;letter-spacing:-.03em}
+.source-card p{font-size:12px;line-height:1.85;color:#637c8a;margin:0;flex:1}
+.source-card a{font-size:12px;font-weight:900;text-decoration:none;align-self:flex-start;background:#e4f5f0;border-radius:7px;padding:9px 12px}
+.source-card.paper .type{color:#976923}.source-card.paper a{background:#fff1de;color:#8e6223}
+.table{overflow:auto;border-radius:12px;border:1px solid #d7e3e6;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+th,td{padding:15px 16px;border-bottom:1px solid #e1e9eb;vertical-align:top}
+th{background:#e7f5f0;color:#216d67;font-size:11px}
+tr:last-child td{border:0}
+.question-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.question{background:#16374a;color:#ebf8f4;padding:24px;border-radius:13px}
+.question b{display:block;color:#69e1c9;letter-spacing:.12em;font-size:10px}
+.question h3{margin:11px 0;font-size:16px;line-height:1.5}
+.question p{font-size:12px;color:#b1cbd2;margin:0}
+.warn{font-size:12px;color:#718b96;margin-top:26px}
+footer{background:var(--navy);color:#a9c5ce;padding:39px 0;font-size:11px}
+footer .wrap{display:flex;justify-content:space-between;align-items:start;gap:15px}
+footer b{color:#e0f8f4;font-size:15px;letter-spacing:.07em}
+footer a{color:#76e6d0;text-decoration:none}
+@media(max-width:950px){.wrap{padding:0 24px}.hero{gap:25px}.pipe-track{grid-template-columns:1fr 18px 1fr 18px 1fr 18px 1fr}.pipe-node{padding:13px 6px}.pipe-node strong{font-size:11px}}
+@media(max-width:740px){.wrap{padding:0 16px}.hero{display:block;padding:48px 0}.hero h1{font-size:36px}.metrics{margin-top:28px}.metric{padding:18px}.metric b{font-size:29px}.nav .wrap{gap:20px}
+section{padding:58px 0}h2{font-size:28px}.origin-split,.composition,.benchmark-grid,.cards,.question-cards{grid-template-columns:1fr}
+.pipe-track{grid-template-columns:1fr;gap:8px}.pipe-arrow{transform:rotate(90deg)}.source-card{padding:19px}
+.legend{grid-template-columns:1fr}.bench-result b{font-size:46px}footer .wrap{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="top"><div class="brand">PYBOT <span>RESEARCH ATLAS</span></div><div class="meta">PRIMARY SOURCES / 2026.11.18</div></div>
+<div class="hero"><div><div class="kicker">A STUDY OF RULES, MEMORY &amp; GENERALIZATION</div><h1>AIが書いたルールは、<br><em>どこまで知能に近づく？</em></h1><p>PyBotのソース、評価指標、歴史的論文をつなぐ図解ノート。ライブ実験で疑問が生まれたら、原典に立ち戻るための地図として使ってください。</p><div class="hero-actions"><a href="#architecture">仕組みを見る ↗</a><a href="#sources">原文資料へ ↗</a></div></div>
+<div class="metrics"><div class="metric"><b>1,000+</b><small>開発したAIエージェント</small></div><div class="metric"><b>5,000+</b><small>開発・評価したバージョン</small></div><div class="metric"><b>640k</b><small>本体Python行数（概数）</small></div><div class="metric"><b>26%</b><small>SmolTalkBench勝率（公式報告）</small></div></div></div></div></header>
+<div class="nav"><nav class="wrap" aria-label="研究ノート目次"><a href="#origin">誕生のしくみ</a><a href="#architecture">内部構造</a><a href="#benchmark">評価の読み方</a><a href="#sources">一次資料</a><a href="#compare">関連研究</a><a href="#questions">議論</a></nav></div>
+<main class="wrap">
+<section id="origin"><div class="eyebrow">01 / THE IMPORTANT DISTINCTION</div><h2>開発にはLLM。<em>実行にはLLMなし。</em></h2><p class="lead">PyBotは「AIを使わずに作られた」のではありません。AIエージェントたちが大量のPythonルールを書き、完成したプログラムはモデルの重みを使わずに会話を処理する、という実験です。</p>
+<div class="origin-split"><article class="origin-card"><div class="band">DEVELOPMENT / AI WRITES RULES</div><h3>作ったとき</h3><div class="mini-flow"><span>AIエージェント群</span><i>→</i><span>ルールの生成・テスト</span><i>→</i><span>Pythonコード</span></div><p>1,000以上のエージェントが5,000以上のバージョンを作成・評価したとREADMEに記されています。開発工程にはAIモデルが関与しています。</p></article>
+<article class="origin-card dark"><div class="band">INFERENCE / RULES EXECUTE</div><h3>使うとき</h3><div class="mini-flow"><span>ユーザー入力</span><i>→</i><span>Pythonの規則</span><i>→</i><span>回答</span></div><p>推論時は条件分岐、正規表現、知識辞書、メモリ、選択器を実行。トークン生成用のニューラルネットワークの重みは使用しません。</p></article></div>
+<div class="contrast-note">問い：大量のルールを自動生成することは、ニューラルネットワークのパラメータを学習することと何が違うのでしょうか。どちらも大規模な探索ですが、実行時の表現・一般化・保守の性質は異なります。</div></section>
+<section id="architecture"><div class="eyebrow">02 / SOURCE-CODE ARCHITECTURE</div><h2>「会話ができるように見える」<em>4つの段階</em></h2><p class="lead">公式リポジトリの <code>bot/runtime.py</code> に記された流れを図にしました。実際には多数のモジュールが回答候補を提出し、<code>arbiter.py</code> が一つを選びます。</p>
+<div class="pipeline"><div class="pipeline-label">PYBOT RUNTIME · CONCEPTUAL FLOW</div><div class="pipe-track">
+<div class="pipe-node"><small>01 / OBSERVE</small><strong>入力を観察</strong><p>文脈・名前などを記憶</p></div><div class="pipe-arrow">→</div>
+<div class="pipe-node"><small>02 / RESPOND</small><strong>候補を作る</strong><p>複数モジュールが返信案を出す</p></div><div class="pipe-arrow">→</div>
+<div class="pipe-node picked"><small>03 / ARBITER</small><strong>一つを選ぶ</strong><p>優先度、文脈などの規則で選択</p></div><div class="pipe-arrow">→</div>
+<div class="pipe-node"><small>04 / AFTER</small><strong>返答と更新</strong><p>回答を返し会話履歴を記録</p></div>
+</div><div class="pipeline-explain">候補ごとのメモリはコピーされ、採択されなかった候補の変更は引き継がれません。ここがルールの競合を扱う大切な設計ポイントです。</div></div>
+<div class="composition"><div class="composition-main"><h3>コード規模の構成（公式READMEの概数）</h3><div class="stackbar" role="img" aria-label="理解約4%、記憶17%、知識50%、回答構成16%、回答モジュール13%"><div></div><div></div><div></div><div></div><div></div></div>
+<div class="legend"><div><i style="background:#5ac8d7"></i>理解エンジン <strong>約25k行</strong></div><div><i style="background:#91a4ef"></i>メモリ <strong>約109k行</strong></div><div><i style="background:#20ae99"></i>知識辞書 <strong>約317k行</strong></div><div><i style="background:#d5a66d"></i>回答の組立 <strong>約104k行</strong></div><div><i style="background:#537b97"></i>モジュール <strong>約81k行</strong></div></div><p class="estimate">注：公式READMEの概数を合計した約636k行に対する丸めた構成比。正確な測定や性能寄与率ではありません。</p></div>
+<aside class="explain"><h3>なぜ「知識」が大きい？</h3><p>知識を学習済みの重みに圧縮する代わりに、言語で記述された事実や対応規則をソースとして保持します。カバーできる状況は増やせても、知らない表現への汎化とは別問題です。</p><div class="arrow-tip">→ <a href="https://github.com/huggingface/pybot/blob/7d63c7fbebb44c7e466e5c8b5c1f341ab767929e/bot/runtime.py" target="_blank" rel="noopener">オリジナルの実行エンジンを読む</a></div></aside></div></section>
+<section id="benchmark"><div class="eyebrow">03 / READING THE EVIDENCE</div><h2>勝率26%は、<em>何を意味する？</em></h2><p class="lead">PyBot公式READMEは、SmolTalkBenchにおける回答の勝率が0%から26%へ向上し、SmolLM-360M-Instructと同程度になったと報告しています。これは汎用推論力が同等という意味ではありません。</p>
+<div class="benchmark-grid"><div class="benchmark-card"><h3>報告された到達値</h3><div class="bench-result"><b>26%</b><span>SmolTalkBenchでLLM判定器により比較したときの勝率</span></div><div class="bench-axis"><i></i></div><div class="bench-ticks"><span>0%</span><span>26%（到達値）</span><span>100%</span></div><p class="small-p">※ これは26%という公表値を軸上に示したものです。未公開の経過点を補完して描いた成長曲線ではありません。</p></div>
+<div class="benchmark-card"><h3>見落としやすい3つの点</h3><div class="bench-points"><div><strong>① 評価するモデルが別にいる</strong><small>LLM judgeが参照回答とPyBotの回答を比較する設定です。</small></div><div><strong>② 対象は会話タスク</strong><small>未知の専門概念や複雑な推論、長い推論過程全般の性能を示しません。</small></div><div><strong>③ 比較対象は小型モデル</strong><small>SmolLM-360M-Instructとの比較は、最新の大規模LLMとの同等性を意味しません。</small></div></div></div></div>
+<div class="evidence-alert"><strong>科学的に確かめたい点：</strong> ベンチマークの設問分布、参照回答、判定器の系統誤差、開発中に似た質問へ最適化していないかを確認しましょう。評価データへのリンクは下にまとめています。</div></section>
+<section id="sources"><div class="eyebrow">04 / PYBOT PRIMARY SOURCES</div><h2>まず確認する、<em>公式資料。</em></h2><p class="lead">PyBotの一次資料として、公式リポジトリのREADME・ソースコード・進捗図・評価データとデモをまとめました。各カードのリンク先は原文です。</p>
+<div class="cards">
+<article class="source-card"><span class="type">OFFICIAL / REPOSITORY</span><h3>PyBot本体とREADME</h3><p>開発の目的、1,000以上のエージェント、ルールの仕組み、実行例、行数と評価の概要を説明する公式資料。</p><a href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">公式READMEを開く ↗</a></article>
+<article class="source-card"><span class="type">OFFICIAL / PINNED CODE ARCHIVE</span><h3>実験対象のソースアーカイブ</h3><p>このLive Labが採用した固定コミット。将来のPyBotの変更と切り分け、同じコードを参照できます。</p><a href="https://github.com/huggingface/pybot/archive/7d63c7fbebb44c7e466e5c8b5c1f341ab767929e.zip" target="_blank" rel="noopener">固定版ZIPを取得 ↗</a></article>
+<article class="source-card"><span class="type">OFFICIAL / CODE</span><h3>回答選択器 arbiter.py</h3><p>複数の候補から一つを選ぶ具体的な条件分岐。優先度と候補選択が別である理由を確認できます。</p><a href="https://github.com/huggingface/pybot/blob/7d63c7fbebb44c7e466e5c8b5c1f341ab767929e/bot/modules/arbiter.py" target="_blank" rel="noopener">元の選択器を読む ↗</a></article>
+<article class="source-card"><span class="type">OFFICIAL / PROGRESS FIGURE</span><h3>開発の性能推移図</h3><p>公式READMEに掲載された、試行とSmolTalkBench性能の変化を示すグラフ。拡大して開発過程を議論するのに使えます。</p><a href="https://github.com/huggingface/pybot/blob/main/assets/progress.png" target="_blank" rel="noopener">公式のグラフを開く ↗</a></article>
+<article class="source-card"><span class="type">OFFICIAL / BENCHMARK DATA</span><h3>SmolTalkBench</h3><p>評価に使用したと報告されているデータセットへの公式リンク。データの構成や判定方法を確認する入口です。</p><a href="https://huggingface.co/datasets/HuggingFaceSwarms/SmolTalkBench" target="_blank" rel="noopener">ベンチマーク原典 ↗</a></article>
+<article class="source-card"><span class="type">OFFICIAL / BROWSER DEMO</span><h3>Hugging Face Spaces デモ</h3><p>オリジナルのPyBotをブラウザで試すための公開デモ。Live Labとの表示や挙動を見比べられます。</p><a href="https://huggingface.co/spaces/HuggingFaceSwarms/PyBot" target="_blank" rel="noopener">元のデモを開く ↗</a></article></div>
+<div class="evidence-alert">現時点で確認した公開一次資料からは、<strong>PyBot専用の査読論文や公式ホワイトペーパーを確認できませんでした</strong>（2026年11月18日確認）。「論文が存在しない」という断定ではなく、確認できた原典の範囲を示しています。</div></section>
+<section id="compare"><div class="eyebrow">05 / RELATED RESEARCH &amp; HISTORY</div><h2>PyBotを、<em>AI史の中に置く。</em></h2><p class="lead">PyBot専用論文の代わりに、議論の土台となる原著論文・原著エッセイ・比較モデルの資料を読みます。関連資料であり、PyBot開発チームの公式説明とは区別しています。</p>
+<div class="cards">
+<article class="source-card paper"><span class="type">PAPER / 1966 · J. WEIZENBAUM</span><h3>ELIZA: A Computer Program for the Study of Natural Language Communication</h3><p>キーワードと分解・再構成ルールによる対話を説明した古典的原著論文。PyBotの「会話らしさ」の歴史的比較対象。</p><a href="https://doi.org/10.1145/365153.365168" target="_blank" rel="noopener">原著論文（ACM DOI）↗</a></article>
+<article class="source-card paper"><span class="type">ORIGINAL ESSAY / 2019 · RICH SUTTON</span><h3>The Bitter Lesson</h3><p>手作業で作り込む知識と、大規模計算により汎化する方法の長期的な関係を問う原著エッセイ。論文ではありません。</p><a href="https://bitterlesson.org/" target="_blank" rel="noopener">原著エッセイを読む ↗</a></article>
+<article class="source-card paper"><span class="type">MODEL CARD / HUGGING FACE</span><h3>SmolLM-360M-Instruct</h3><p>公式READMEが比較に挙げる小型の学習済み言語モデル。モデルのアーキテクチャ、訓練と限界を見る入口。</p><a href="https://huggingface.co/HuggingFaceTB/SmolLM-360M-Instruct" target="_blank" rel="noopener">モデルカードを読む ↗</a></article>
+<article class="source-card paper"><span class="type">ORIGINAL HISTORICAL CODE</span><h3>Original ELIZA project</h3><p>ELIZAの歴史と公開されたオリジナル実装をたどる資料。コードを実際に見てPyBotと比較できます。</p><a href="https://elizagen.org/original-eliza.html" target="_blank" rel="noopener">原典アーカイブ ↗</a></article>
+</div>
+<div class="table"><table><thead><tr><th>比較項目</th><th>ELIZA（1966）</th><th>PyBot（2026）</th><th>学習済みLLM</th></tr></thead><tbody>
+<tr><td>会話のしくみ</td><td>キーワード・変換ルール</td><td>大規模な規則群＋記憶＋回答選択</td><td>重みからトークンを予測</td></tr>
+<tr><td>未知の質問</td><td>スクリプトの対応範囲に依存</td><td>ルールと辞書のカバー範囲に依存</td><td>分布的な一般化が可能だが誤答もある</td></tr>
+<tr><td>説明可能性</td><td>ルールに追跡可能</td><td>候補・呼び出し・コードを追える</td><td>内部表現からの因果説明は難しい</td></tr>
+<tr><td>発展のしかた</td><td>スクリプト追加</td><td>コード生成・テストとルール拡充</td><td>訓練、微調整、推論設計など</td></tr>
+</tbody></table></div></section>
+<section id="questions"><div class="eyebrow">06 / OPEN DISCUSSION</div><h2>勉強会で試したい、<em>3つの仮説。</em></h2><p class="lead">結論を先に教えるのではなく、ライブ実験と一次資料を往復するための問いとして置いています。</p>
+<div class="question-cards"><div class="question"><b>HYPOTHESIS 01</b><h3>コード量が増えれば、汎化も増える？</h3><p>似た意味で異なる表現を投げ、候補モジュールの重なりと回答内容を比較します。</p></div><div class="question"><b>HYPOTHESIS 02</b><h3>説明できることは、理解していること？</h3><p>記憶を訂正した後の回答、未知語、文脈の取り違えを観察し、説明可能性と能力を分けて考えます。</p></div><div class="question"><b>HYPOTHESIS 03</b><h3>ルールとLLMは、対立する必要がある？</h3><p>安全な固定処理、監査可能なルーティング、未知入力への柔軟な理解の役割分担を議論します。</p></div></div>
+<p class="warn">出典の区別：PyBotの数値・処理系は公式READMEとソースに基づきます。比較や仮説は勉強会用の分析・考察です。外部原典の閲覧にはネット接続が必要ですが、この図解ページ自体は単体HTMLで表示できます。</p></section>
+</main><footer><div class="wrap"><div><b>PYBOT RESEARCH ATLAS</b><p>読むためではなく、議論を前へ進めるための原典地図。</p></div><div>Compiled from public primary sources · 2026-11-18<br><a href="https://github.com/hirasunaryou/pybotDemo" target="_blank" rel="noopener">Live Lab repository ↗</a></div></div></footer>
+</body></html>
