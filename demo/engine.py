@@ -3,8 +3,6 @@
 The actual candidate set comes directly from upstream bot.runtime.turn().
 No rule predictions, module choices, or model-generated explanations are fabricated.
 """
-import ast
-import copy
 import random
 import re
 import sys
@@ -207,7 +205,7 @@ class Engine:
         if not re.fullmatch(r"bot/[a-zA-Z_0-9/]+\.py", name) or ".." in name:
             raise InputError("不正なファイルパスです")
         path = (self.source / name).resolve()
-        if not path.is_relative_to(self.source) if hasattr(path, "is_relative_to") else str(self.source) not in str(path.parents):
+        if self.source not in path.parents:
             raise InputError("参照できないファイルパスです")
         if not path.is_file():
             raise InputError("ソースファイルが見つかりません")
