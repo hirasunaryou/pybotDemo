@@ -88,15 +88,22 @@ def make_handler(app):
             if not self.path.startswith("/api/"):
                 return
 
-        def send_body(self, body, status=200, ctype="application/json; charset=utf-8"):
+        def send_body(self, body, status=200, ctype="application/json; charset=utf-8", doc_html=False):
             self.send_response(status)
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy",
-                             "default-src 'self'; script-src 'self'; style-src 'self'; "
-                             "img-src 'self' data:; connect-src 'self'; object-src 'none'")
+            if doc_html:
+                # Only our bundled, read-only documents contain inline CSS; this allows
+                # single-file HTML to look identical online and when opened from disk.
+                # Scripts and network resources remain blocked in docs pages.
+                csp = ("default-src 'none'; script-src 'none'; style-src 'self' 'unsafe-inline'; "
+                       "img-src 'self' data:; object-src 'none'; base-uri 'none'")
+            else:
+                csp = ("default-src 'self'; script-src 'self'; style-src 'self'; "
+                       "img-src 'self' data:; connect-src 'self'; object-src 'none'")
+            self.send_header("Content-Security-Policy", csp)
             self.end_headers()
             self.wfile.write(body)
 
@@ -130,7 +137,8 @@ def make_handler(app):
                 media = mimetypes.guess_type(str(filename))[0] or "application/octet-stream"
                 if media.startswith("text/") or media in ("application/javascript",):
                     media += "; charset=utf-8"
-                self.send_body(filename.read_bytes(), ctype=media)
+                is_doc_html = filename.suffix.lower() == ".html" and DOCS.resolve() in filename.parents
+                self.send_body(filename.read_bytes(), ctype=media, doc_html=is_doc_html)
             except (InputError, ValueError, TypeError) as exc:
                 self.error(exc)
             except Exception:
