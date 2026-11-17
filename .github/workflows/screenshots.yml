@@ -13,7 +13,7 @@ permissions:
 jobs:
   capture:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -35,5 +35,7 @@ jobs:
             echo "Screenshots unchanged"
           else
             git commit -m "docs: refresh actual PyBot UI screenshots [skip ci]"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
