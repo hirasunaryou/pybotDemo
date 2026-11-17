@@ -30,7 +30,8 @@ def ensure_upstream(output=print):
             raise RuntimeError("PYBOT_DEMO_SOURCE は bot/runtime.py を含むPyBotの親フォルダを指定してください: " + str(location))
         output("ローカルのPyBotを使用: " + str(location))
         return location
-    if _valid(CACHE) and (CACHE / ".demo-source-commit").read_text(encoding="utf-8").strip() == UPSTREAM_COMMIT:
+    if (_valid(CACHE) and (CACHE / ".demo-source-commit").is_file() and
+            (CACHE / ".demo-source-commit").read_text(encoding="utf-8").strip() == UPSTREAM_COMMIT):
         output("取得済みの固定版PyBotを使用します。")
         return CACHE
 
