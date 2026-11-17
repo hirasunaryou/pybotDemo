@@ -113,7 +113,7 @@ class FakeSource(unittest.TestCase):
         with self.assertRaises(InputError):
             self.engine.module_file("../../../secrets")
         with self.assertRaises(InputError):
-            self.engine.ask("too_short", "test")
+            self.engine.ask("short", "test")
         with self.assertRaises(InputError):
             self.engine.trace("test_session_2", 44, "backup")
 
