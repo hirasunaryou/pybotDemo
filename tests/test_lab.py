@@ -153,7 +153,7 @@ class FakeSource(unittest.TestCase):
 
     def test_user_override_does_not_download(self):
         with mock.patch.dict(os.environ, {"PYBOT_DEMO_SOURCE":str(self.root)}):
-            self.assertEqual(ensure_upstream(output=lambda *_: None), self.root)
+            self.assertEqual(ensure_upstream(output=lambda *_: None), self.root.resolve())
 
 
 if __name__ == "__main__":
