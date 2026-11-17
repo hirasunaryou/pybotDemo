@@ -138,6 +138,17 @@ class FakeSource(unittest.TestCase):
         with urlopen(url, timeout=10) as response:
             html = response.read().decode("utf-8")
             self.assertIn("PYBOT", html)
+            self.assertIn("id=\"voiceBtn\"", html)
+            self.assertIn('href="/docs/RESEARCH.html"', html)
+        with urlopen(url + "static/voice.js", timeout=10) as response:
+            js = response.read().decode("utf-8")
+            self.assertIn("SpeechRecognition", js)
+            self.assertIn("never", js.lower())
+        with urlopen(url + "docs/RESEARCH.html", timeout=10) as response:
+            research = response.read().decode("utf-8")
+            self.assertIn("ELIZA", research)
+            self.assertIn("<style>", research)
+            self.assertIn("'unsafe-inline'", response.headers.get("Content-Security-Policy", ""))
         def post(endpoint, payload):
             req = Request(url+"api/"+endpoint, data=json.dumps(payload).encode("utf-8"),
                           headers={"Content-Type":"application/json"})
