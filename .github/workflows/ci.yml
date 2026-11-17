@@ -27,6 +27,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Download pinned original and get a real candidate
-        run: |
-          python -c "from demo.bootstrap import ensure_upstream; from demo.engine import Engine; e=Engine(ensure_upstream()); r=e.ask('smoke_session_001', 'Hi, I am Sam.'); print('REPLY:', r['reply']); print('CANDIDATES:', r['candidate_count']); assert r['candidate_count'] > 0"
+      - name: Download pinned original, chat and inspect real replay trace
+        run: python -m tools.upstream_smoke
