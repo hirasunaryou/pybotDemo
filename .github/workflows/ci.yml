@@ -1,0 +1,32 @@
+name: Offline tests and upstream smoke
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline:
+    name: Stdlib tests / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline unit and HTTP tests
+        run: python -m unittest discover -s tests -v
+  upstream-smoke:
+    name: Real upstream smoke / Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download pinned original and get a real candidate
+        run: |
+          python -c "from demo.bootstrap import ensure_upstream; from demo.engine import Engine; e=Engine(ensure_upstream()); r=e.ask('smoke_session_001', 'Hi, I am Sam.'); print('REPLY:', r['reply']); print('CANDIDATES:', r['candidate_count']); assert r['candidate_count'] > 0"
