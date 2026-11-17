@@ -36,6 +36,46 @@ def main():
             page.locator("#traceBtn").click()
             page.locator(".trace-note.good, .trace-note.warn").first.wait_for(timeout=180000)
             page.locator(".insight-panel").screenshot(path=str(output / "code-trace.png"))
+            # Verify spoken text is staged for review, NEVER auto-submitted.
+            voice_page = browser.new_page(viewport={"width": 1280, "height": 840})
+            voice_page.add_init_script("""() => {
+              class MockSpeech {
+                start() {
+                  setTimeout(() => {
+                    if (this.onstart) this.onstart();
+                    if (this.onresult) this.onresult({ results: [
+                      Object.assign([{ transcript: "Why is the sky blue?" }], { isFinal: true })
+                    ]});
+                    if (this.onend) this.onend();
+                  }, 25);
+                }
+                stop() { if (this.onend) this.onend(); }
+              }
+              window.SpeechRecognition = MockSpeech;
+              window.webkitSpeechRecognition = MockSpeech;
+            }""")
+            voice_page.goto(url, wait_until="domcontentloaded")
+            voice_page.locator("#voiceBtn").click()
+            voice_page.wait_for_function(
+                'document.querySelector("#questionInput").value.includes("Why is the sky blue?")',
+                timeout=15000)
+            voice_page.wait_for_function(
+                'document.querySelector("#voiceBtn").getAttribute("aria-pressed") === "false"',
+                timeout=15000)
+            assert voice_page.locator(".bubble-row.bot").count() == 0, "Voice auto-sent the question"
+            voice_page.close()
+            print("Voice dictation browser-mock test passed: editable transcript, no auto-send")
+
+            unsupported = browser.new_page()
+            unsupported.add_init_script("""() => {
+                window.SpeechRecognition = undefined;
+                window.webkitSpeechRecognition = undefined;
+            }""")
+            unsupported.goto(url, wait_until="domcontentloaded")
+            assert unsupported.locator("#voiceBtn").is_disabled()
+            assert "Win+H" in unsupported.locator("#voiceStatus").inner_text()
+            unsupported.close()
+            print("Voice unsupported-browser fallback test passed")
             print("Captured real PyBot UI screenshots in", output)
             browser.close()
     finally:
