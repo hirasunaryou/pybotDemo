@@ -4,6 +4,7 @@ The actual candidate set comes directly from upstream bot.runtime.turn().
 No rule predictions, module choices, or model-generated explanations are fabricated.
 """
 import random
+import os
 import re
 import sys
 import threading
@@ -138,15 +139,35 @@ class Engine:
         target = self.module_file(module).resolve()
         arbiter = (self.source / "bot" / "modules" / "arbiter.py").resolve()
         watched = {str(target), str(arbiter)}
+        bot_prefix = str(self.source / "bot") + os.sep
         hits, calls = {}, Counter()
         events = []
+
+        def inside_selected_responder(frame):
+            # A called helper belongs to this candidate only if the selected
+            # respond() is still on the stack (not merely because it shares a topic).
+            parent = frame.f_back
+            depth = 0
+            while parent is not None and depth < 48:
+                if parent.f_code.co_filename == str(target) and parent.f_code.co_name == "respond":
+                    return True
+                parent = parent.f_back
+                depth += 1
+            return False
+
         def tracer(frame, event, arg):
             filename = frame.f_code.co_filename
             if event == "call":
-                if filename in watched:
-                    calls[(Path(filename).name, frame.f_code.co_name)] += 1
-                    return tracer
-                return None
+                is_watched = filename in watched
+                is_helper = filename.startswith(bot_prefix) and inside_selected_responder(frame)
+                if is_watched or is_helper:
+                    relative = str(Path(filename).relative_to(self.source)).replace("\\", "/")
+                    key = (relative, frame.f_code.co_name, frame.f_code.co_firstlineno)
+                    if key in calls or len(calls) < 4000:
+                        calls[key] += 1
+                # Line-level instrumentation stays targeted and fast. The
+                # helper call graph is recorded without tracing every helper line.
+                return tracer if is_watched else None
             if event == "line" and filename in watched:
                 rel = str(Path(filename).relative_to(self.source)).replace("\\", "/")
                 per_file = hits.setdefault(rel, Counter())
@@ -182,8 +203,8 @@ class Engine:
                 "elapsed_ms": round((time.perf_counter() - start) * 1000),
                 "hits": {path: [{"line": line, "count": count} for line, count in sorted(counts.items())]
                          for path, counts in hits.items()},
-                "calls": [{"file": path, "fn": fn, "count": count}
-                          for (path, fn), count in calls.most_common(25)],
+                "calls": [{"path": path, "file": Path(path).name, "fn": fn, "line": line, "count": count}
+                          for (path, fn, line), count in calls.most_common(45)],
                 "events": events,
                 "method": "同じ入力を固定seedで別メモリに再実行し、対象モジュールとarbiterの実行行を収集",
                 "warning": "再実行が元の回答と一致しません。表示される行は元のターンの確定実行経路ではありません。"
