@@ -7,12 +7,17 @@ on:
       - 'demo/static/**'
       - 'demo/server.py'
       - 'tools/capture_manual.py'
+      - 'tools/capture_docs.py'
+      - 'tools/build_manual.py'
+      - 'docs/MANUAL.source.html'
+      - 'docs/manual.css'
+      - 'docs/RESEARCH.html'
       - '.github/workflows/screenshots.yml'
 permissions:
   contents: write
 concurrency:
   group: pybot-manual-screenshots-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   capture:
     if: github.ref == 'refs/heads/main'
@@ -29,15 +34,21 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Capture actual UI with the pinned PyBot
         run: python tools/capture_manual.py
-      - name: Commit refreshed screenshots
+      - name: Assemble the standalone manual with embedded real screenshots
+        run: python tools/build_manual.py
+      - name: Check both documents in a real browser and capture preview screenshots
+        run: python tools/capture_docs.py
+      - name: Verify standalone manual is current
+        run: python tools/build_manual.py --check
+      - name: Commit refreshed standalone HTML and screenshots
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/images/overview.png docs/images/code-trace.png
+          git add docs/MANUAL.html docs/images/overview.png docs/images/code-trace.png docs/images/manual-preview.png docs/images/research-preview.png
           if git diff --cached --quiet; then
-            echo "Screenshots unchanged"
+            echo "Manual and screenshots unchanged"
           else
-            git commit -m "docs: refresh actual PyBot UI screenshots [skip ci]"
+            git commit -m "docs: rebuild portable manual and refresh real UI previews [skip ci]"
             git fetch origin main
             git rebase origin/main
             git push origin HEAD:main
