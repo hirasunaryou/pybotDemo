@@ -204,13 +204,22 @@ async function traceSource() {
   try {
     state.trace = await request("/api/trace", {session:state.session,turn_index:turnIndex,module});
     const data = state.trace;
-    $("traceNote").textContent = data.warning ||
-      "再実行と元の回答が一致しました。色付きの行は、対象モジュールまたはarbiterで実際に通過した行です。";
+    $("traceNote").textContent = (data.warning ||
+      "再実行と元の回答が一致しました。色付きの行は、対象モジュールまたはarbiterで実際に通過した行です。") +
+      " 関数一覧は呼び出しを観測したもので、各ヘルパー関数の内部行まで追跡したものではありません。";
     $("traceNote").className = "trace-note " + (data.replay_equal ? "good" : "warn");
     $("functionCalls").innerHTML = data.calls.length ?
-      data.calls.map(c => '<div class="call-row"><span>' + esc(c.file) + ' · ' + esc(c.fn) +
-        '()</span><span>' + esc(c.count) + ' 回</span></div>').join("") :
+      data.calls.map((c, i) => '<button type="button" class="call-row" data-call="' + i +
+        '" title="この関数のソースコードを開く"><span>' + esc(c.path || c.file) + ':' +
+        esc(c.line || "?") + ' · ' + esc(c.fn) + '()</span><span>' +
+        esc(c.count) + ' 回 ↗</span></button>').join("") :
       "対象の関数呼び出しは観測されませんでした。";
+    $("functionCalls").querySelectorAll("[data-call]").forEach(button => {
+      button.onclick = () => {
+        const call = data.calls[Number(button.dataset.call)];
+        if (call.path) openSource(call.path, Math.max(1, call.line - 7));
+      };
+    });
     // Keep whichever source (module or arbiter) is currently open and highlight its observed lines.
     if (state.source) renderSource();
     toast(data.replay_equal ? "実行行を記録しました（再実行結果も一致）" : "実行行を記録しましたが、再実行結果に差がありました", !data.replay_equal);
