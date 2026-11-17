@@ -5,6 +5,9 @@ Requires Playwright in CI; the application itself stays dependency-free.
 """
 from pathlib import Path
 import threading
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from demo.bootstrap import ensure_upstream, PROJECT_ROOT
 from demo.server import serve
