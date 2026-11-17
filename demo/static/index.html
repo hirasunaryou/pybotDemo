@@ -7,12 +7,13 @@
 <title>PyBot Live Lab · ルールベースAIの内部を探る</title>
 <link rel="stylesheet" href="/static/styles.css">
 <script src="/static/app.js" defer></script>
+<script src="/static/voice.js" defer></script>
 </head>
 <body>
 <div class="page">
 <header class="topbar">
   <div class="identity"><div class="identity-mark">P<span>✳</span></div><div><div class="brand">PYBOT <strong>LIVE LAB</strong></div><div class="brand-sub">RULE-BASED AI · INTERACTIVE WORKSHOP</div></div></div>
-  <div class="toplinks"><span id="statusDot" class="status-chip"><i></i>準備中</span><a href="/docs/MANUAL.html" target="_blank" rel="noopener">操作ガイド ↗</a><a href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">元のPyBot ↗</a></div>
+  <div class="toplinks"><span id="statusDot" class="status-chip"><i></i>準備中</span><a href="/docs/MANUAL.html" target="_blank" rel="noopener">操作ガイド ↗</a><a href="/docs/RESEARCH.html" target="_blank" rel="noopener">研究資料 ↗</a><a href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">元のPyBot ↗</a></div>
 </header>
 <section class="hero">
   <div class="eyebrow"><span class="signal"></span> EXPERIMENT 01 <span class="dash">/</span> NO NEURAL NETWORK</div>
@@ -39,7 +40,9 @@
   </div>
   <div class="composer">
     <label for="questionInput">YOUR MESSAGE <span>英語での質問がおすすめ</span></label>
-    <div class="composer-row"><textarea id="questionInput" rows="2" maxlength="1000" placeholder="Ask PyBot anything… 例: Why is the sky blue?"></textarea><button id="sendBtn" class="send-btn" aria-label="質問を送信"><span>送信</span><span class="send-icon">↗</span></button></div>
+    <div class="composer-row"><textarea id="questionInput" rows="2" maxlength="1000" placeholder="Ask PyBot anything… 例: Why is the sky blue?"></textarea><button id="voiceBtn" type="button" class="mic-button" title="音声を文字起こし（送信はしません）" aria-label="音声入力を開始" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg><span id="voiceBtnText">音声</span></button><button id="sendBtn" class="send-btn" aria-label="質問を送信"><span>送信</span><span class="send-icon">↗</span></button></div>
+    <div class="voice-bar"><div class="voice-main"><span id="voiceStatus" aria-live="polite">マイクから文字起こしできます（送信前に確認）</span><span id="voicePulse" class="voice-pulse hidden" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><label class="voice-lang" for="voiceLang">音声言語 <select id="voiceLang"><option value="en-US">English</option><option value="ja-JP">日本語</option></select></label></div>
+    <details class="voice-privacy"><summary>音声入力とプライバシーについて</summary><p>ブラウザ標準の音声認識機能を利用します。環境によって音声がブラウザ提供元のサーバーに送られる場合があり、完全オフラインとは限りません。PyBot本体へは文字だけが渡ります。録音ファイルをアプリ側で保存しません。対応していない場合はMacの音声入力／WindowsのWin+Hをご利用ください。</p></details>
     <div class="composer-hint"><span id="busyText">Enterで送信 / Shift+Enterで改行</span><span>ルールのみ · ローカル実行</span></div>
   </div>
 </section>
