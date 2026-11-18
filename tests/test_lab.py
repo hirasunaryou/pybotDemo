@@ -138,12 +138,21 @@ class FakeSource(unittest.TestCase):
         with urlopen(url, timeout=10) as response:
             html = response.read().decode("utf-8")
             self.assertIn("PYBOT", html)
+            self.assertIn("2026年11月", html)
+            self.assertIn("Apache-2.0", html)
+            self.assertIn("独立した勉強会用ツール", html)
             self.assertIn("id=\"voiceBtn\"", html)
+            self.assertIn('id="themeToggle"', html)
             self.assertIn('href="/docs/RESEARCH.html"', html)
         with urlopen(url + "static/voice.js", timeout=10) as response:
             js = response.read().decode("utf-8")
             self.assertIn("SpeechRecognition", js)
             self.assertIn("never", js.lower())
+        with urlopen(url + "static/theme.js", timeout=10) as response:
+            theme_script = response.read().decode("utf-8")
+            self.assertIn("prefers-color-scheme", theme_script)
+            self.assertIn("localStorage", theme_script)
+            self.assertIn('data-theme', theme_script)
         with urlopen(url + "docs/RESEARCH.html", timeout=10) as response:
             research = response.read().decode("utf-8")
             self.assertIn("ELIZA", research)
