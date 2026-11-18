@@ -38,7 +38,7 @@ def main():
             page.locator(".insight-panel").screenshot(path=str(output / "code-trace.png"))
             # Verify spoken text is staged for review, NEVER auto-submitted.
             voice_page = browser.new_page(viewport={"width": 1280, "height": 840})
-            voice_page.add_init_script("""() => {
+            voice_page.add_init_script("""(function() {
               class MockSpeech {
                 start() {
                   setTimeout(() => {
@@ -53,7 +53,7 @@ def main():
               }
               window.SpeechRecognition = MockSpeech;
               window.webkitSpeechRecognition = MockSpeech;
-            }""")
+            })();""")
             voice_page.goto(url, wait_until="domcontentloaded")
             voice_page.locator("#voiceBtn").click()
             voice_page.wait_for_function(
@@ -67,10 +67,10 @@ def main():
             print("Voice dictation browser-mock test passed: editable transcript, no auto-send")
 
             unsupported = browser.new_page()
-            unsupported.add_init_script("""() => {
+            unsupported.add_init_script("""(function() {
                 window.SpeechRecognition = undefined;
                 window.webkitSpeechRecognition = undefined;
-            }""")
+            })();""")
             unsupported.goto(url, wait_until="domcontentloaded")
             assert unsupported.locator("#voiceBtn").is_disabled()
             assert "Win+H" in unsupported.locator("#voiceStatus").inner_text()
