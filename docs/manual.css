@@ -187,3 +187,8 @@ a:hover{color:#076256}
  .experiment-list article{padding:20px}.experiment-top{gap:8px;flex-wrap:wrap}.experiment-list h3{font-size:17px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Concise attribution near the top; details stay in Research Atlas. */
+.origin-caption{font-size:11px;line-height:1.85;color:#a6c9d1;background:#193748;border-left:3px solid #63dfc5;border-radius:4px;padding:11px 13px;margin:0 0 18px;max-width:650px}
+.origin-caption strong{color:#a4f5e2;letter-spacing:.07em;font-size:10px}
+.origin-caption a{color:#9cf9df;text-decoration:underline;text-underline-offset:3px}
