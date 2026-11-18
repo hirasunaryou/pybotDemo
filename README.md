@@ -13,7 +13,13 @@
   <img src="docs/images/overview.png" alt="PyBot Live Lab 実画面：左側でPyBotと会話し、右側で回答候補・採択モジュール・優先度を比較するダークテーマのダッシュボード" width="100%">
 </a>
 
-<p><sub>▲ 実際のPyBotを動かして撮影した画面です。左で質問し、右で「なぜこの回答になった？」を調べます。画像をクリックすると拡大できます。</sub></p>
+<p><sub>▲ 実際のPyBotを動かして撮影したダーク画面です。左で質問し、右で「なぜこの回答になった？」を調べます。画像をクリックすると拡大できます。</sub></p>
+
+<details>
+<summary><strong>☀️ ライトモードの実画面も見る</strong></summary>
+<p><a href="docs/images/overview-light.png"><img src="docs/images/overview-light.png" alt="PyBot Live Labの実際のライトモード画面。明るい背景で会話と回答候補が読みやすく表示される" width="100%"></a></p>
+<p>右上のテーマ切り替えボタンから、ライトとダークを選べます。初回はOSの設定に合わせます。</p>
+</details>
 
 <br><br>
 
