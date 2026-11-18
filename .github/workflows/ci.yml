@@ -19,6 +19,10 @@ jobs:
           python-version: '3.11'
       - name: Offline unit and HTTP tests
         run: python -m unittest discover -s tests -v
+      - name: Build and verify offline standalone HTML
+        run: |
+          python tools/build_manual.py
+          python tools/build_manual.py --check
   upstream-smoke:
     name: Real upstream smoke / Ubuntu
     runs-on: ubuntu-latest
@@ -29,3 +33,7 @@ jobs:
           python-version: '3.11'
       - name: Download pinned original, chat and inspect real replay trace
         run: python -m tools.upstream_smoke
+      - name: Syntax-check browser JavaScript
+        run: |
+          node --check demo/static/app.js
+          node --check demo/static/voice.js
