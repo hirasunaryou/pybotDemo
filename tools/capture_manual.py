@@ -6,11 +6,64 @@ Requires Playwright in CI; the application itself stays dependency-free.
 from pathlib import Path
 import threading
 import sys
+import re
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from demo.bootstrap import ensure_upstream, PROJECT_ROOT
 from demo.server import serve
+
+
+def contrast_ratio(first, second):
+    def luminance(color):
+        nums = [float(v) for v in re.findall(r"[\d.]+", color)[:3]]
+        if len(nums) != 3:
+            raise AssertionError("Not an RGB color: " + color)
+        rgb = [v / 255 for v in nums]
+        rgb = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in rgb]
+        return .2126 * rgb[0] + .7152 * rgb[1] + .0722 * rgb[2]
+    a, b = sorted([luminance(first), luminance(second)], reverse=True)
+    return (a + .05) / (b + .05)
+
+
+def assert_readable(page, mode):
+    pairs = (
+        (".panel-head h2", ".panel-head"),
+        (".composer textarea", ".composer textarea"),
+        (".scenario-chips button.active", ".scenario-chips button.active"),
+        (".candidate-item.picked .candidate-name", ".candidate-item.picked"),
+        (".result-module", ".tab-body"),
+    )
+    for foreground, background in pairs:
+        fg = page.locator(foreground).first.evaluate("(el) => getComputedStyle(el).color")
+        bg = page.locator(background).first.evaluate("(el) => getComputedStyle(el).backgroundColor")
+        ratio = contrast_ratio(fg, bg)
+        assert ratio >= 4.5, (mode, foreground, fg, bg, ratio)
+    print(mode, "contrast checks passed (>= 4.5:1),", len(pairs), "text/background pairs")
+
+
+def assert_japanese_glyphs(page):
+    # When CJK fonts are absent, two unrelated ideographs often rasterise
+    # as the SAME replacement square. Canvas pixels make the test explicit.
+    distinct = page.locator("body").evaluate("""(el) => {
+      function pixels(letter) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 88; canvas.height = 88;
+        const c = canvas.getContext("2d");
+        c.fillStyle = "#fff"; c.fillRect(0,0,88,88);
+        c.fillStyle = "#000"; c.font = '60px "Noto Sans CJK JP", "IPAGothic", sans-serif';
+        c.fillText(letter, 10, 64);
+        return c.getImageData(0,0,88,88).data;
+      }
+      const first=pixels("会"), second=pixels("話");
+      let changed=0;
+      for(let i=0;i<first.length;i+=4) {
+        if (Math.abs(first[i]-second[i])>60) changed++;
+      }
+      return changed;
+    }""")
+    assert distinct > 100, "CJK text resembles replacement squares; install Japanese fonts"
+    print("Japanese glyph rasterization verified:", distinct, "different pixels")
 
 
 def main():
@@ -25,17 +78,44 @@ def main():
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             page = browser.new_page(viewport={"width": 1460, "height": 1120}, device_scale_factor=1)
+            page.emulate_media(color_scheme="dark")
             page.goto(url, wait_until="domcontentloaded")
+            assert page.locator("html").get_attribute("data-theme") == "dark"
+            assert_japanese_glyphs(page)
             page.locator("#statusDot.ready").wait_for(timeout=120000)
             page.locator('button[data-scenario="0"]').click()
             page.locator("#sendBtn").click()
             page.locator(".bubble-row.bot").first.wait_for(timeout=180000)
+            assert_readable(page, "Dark")
             page.locator(".workspace").screenshot(path=str(output / "overview.png"))
+            # Real light-mode screenshot from the SAME conversation, not a design mock.
+            page.locator("#themeToggle").click()
+            assert page.locator("html").get_attribute("data-theme") == "light"
+            assert_readable(page, "Light")
+            page.locator(".workspace").screenshot(path=str(output / "overview-light.png"))
+            page.locator("#themeToggle").click()
+            assert page.locator("html").get_attribute("data-theme") == "dark"
             page.locator(".candidate-item").first.click()
             page.locator(".code-line").first.wait_for(timeout=120000)
             page.locator("#traceBtn").click()
             page.locator(".trace-note.good, .trace-note.warn").first.wait_for(timeout=180000)
             page.locator(".insight-panel").screenshot(path=str(output / "code-trace.png"))
+            page.locator("#themeToggle").click()
+            assert page.locator("html").get_attribute("data-theme") == "light"
+            page.reload(wait_until="domcontentloaded")
+            assert page.locator("html").get_attribute("data-theme") == "light", "Stored theme was not retained"
+            page.locator("#themeToggle").click()
+            assert page.locator("html").get_attribute("data-theme") == "dark"
+
+            mobile = browser.new_page(viewport={"width": 390, "height": 844})
+            mobile.emulate_media(color_scheme="light")
+            mobile.goto(url, wait_until="domcontentloaded")
+            assert mobile.locator("html").get_attribute("data-theme") == "light"
+            size = mobile.locator("html").evaluate(
+                "(el) => ({ width: el.clientWidth, scroll: el.scrollWidth })")
+            assert size["scroll"] <= size["width"] + 1, ("mobile horizontal overflow", size)
+            mobile.close()
+            print("Desktop theme persistence and mobile width: passed")
             # Verify spoken text is staged for review, NEVER auto-submitted.
             voice_page = browser.new_page(viewport={"width": 1280, "height": 840})
             voice_page.add_init_script("""(function() {
