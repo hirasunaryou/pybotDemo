@@ -28,6 +28,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install Japanese fonts for legible screenshots
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk fonts-ipafont-gothic
+          fc-cache -f
+          fc-match -f '%{family} | %{file}\n' 'Noto Sans CJK JP:lang=ja'
       - name: Install browser only in documentation CI
         run: |
           python -m pip install playwright==1.56.0
@@ -44,7 +50,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/MANUAL.html docs/images/overview.png docs/images/code-trace.png docs/images/manual-preview.png docs/images/research-preview.png
+          git add docs/MANUAL.html docs/images/overview.png docs/images/overview-light.png docs/images/code-trace.png docs/images/manual-preview.png docs/images/research-preview.png
           if git diff --cached --quiet; then
             echo "Manual and screenshots unchanged"
           else
