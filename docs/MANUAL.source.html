@@ -53,7 +53,7 @@
   <div class="micro-note">初回はインターネット接続が必要です。取得したPyBotは <code>.runtime/pybot</code> に保存され、通常2回目以降は再取得しません。PyBot自体の会話処理には外部LLM APIを使用しません。</div>
 </section>
 <section class="chapter" id="screen">
-  <div class="chapter-header"><div class="chapter-id">CHAPTER 02 <span>/ ORIENTATION</span></div><h2>一画面で、<span>会話から根拠まで。</span></h2><p>まず左側で話しかけ、次に右側で採択された候補とコードを見る。難しい用語を覚える必要はありません。</p></div>
+  <div class="chapter-header"><div class="chapter-id">CHAPTER 02 <span>/ ORIENTATION</span></div><h2>一画面で、<span>会話から根拠まで。</span></h2><p>まず左側で話しかけ、次に右側で採択された候補とコードを見る。表示は右上の「ライトへ／ダークへ」で切り替えられ、初回はOS設定に合わせます。</p></div>
   <div class="screen-figure"><div class="figure-head"><span><i></i> ACTUAL APPLICATION SCREEN</span><span>UI CAPTURE / PYBOT REAL RUN</span></div><img src="images/overview.png" alt="実アプリ画面。左がPyBotとの会話、右が候補の一覧と採択結果。" width="1460"><div class="figure-footer"><span><b>01</b> 左側：会話を始める</span><span><b>02</b> 右側：候補を見る</span><span><b>03</b> 候補をクリックしてコードへ</span></div></div>
   <div class="three-guide"><div><strong>PLAYGROUND</strong><h3>会話</h3><p>質問するとPyBotが返信。応答時間と採択モジュールが表示されます。</p></div><div><strong>CANDIDATES</strong><h3>候補比較</h3><p>複数のルールが作った回答候補と優先度を表示。採択されたものを識別できます。</p></div><div><strong>SOURCE</strong><h3>コード探索</h3><p>対応するPythonの実コードへ移動。実行行の追跡と検索も行えます。</p></div></div>
 </section>
@@ -81,7 +81,7 @@
   <div class="research-banner"><div><span>RESEARCH LIBRARY</span><h3>議論が深まったら、原典へ。</h3><p>PyBot公式ソース・評価資料、ELIZA原著論文、Bitter Lessonへのリンクと、図解した整理ページを用意しています。</p></div><a href="RESEARCH.html" target="_blank" rel="noopener">資料ライブラリ ↗</a></div>
 </section>
 <section class="chapter" id="question"><div class="chapter-header"><div class="chapter-id">CHAPTER 07 <span>/ HELP DESK</span></div><h2>困ったときの、<span>最短ルート。</span></h2></div>
-  <div class="faq"><details><summary>CSSや画像が表示されない</summary><p>この配布版 <code>MANUAL.html</code> はCSSと実スクリーンショットを同梱した単体ファイルです。ブラウザで直接開いてください。もしリンクが生きない場合も、本文・図解はネット接続なしで読めます。</p></details>
+  <div class="faq"><details><summary>ライト／ダークを切り替えたい</summary><p>アプリ右上の「ライトへ」「ダークへ」を押します。次回以降は選択した表示テーマをこのブラウザ内に保存し、会話データとは別に扱います。</p></details><details><summary>CSSや画像が表示されない</summary><p>この配布版 <code>MANUAL.html</code> はCSSと実スクリーンショットを同梱した単体ファイルです。ブラウザで直接開いてください。もしリンクが生きない場合も、本文・図解はネット接続なしで読めます。</p></details>
   <details><summary>マイクボタンが使えない</summary><p>ブラウザによりSpeechRecognitionが利用できない場合があります。Macの音声入力、Windowsの <code>Win+H</code> を試してください。マイクの許可も確認します。</p></details>
   <details><summary>Pythonが見つからない</summary><p><a href="https://www.python.org/downloads/">Python公式サイト</a>からPython 3.8以上を導入してください。アプリの本体には追加pipパッケージはありません。</p></details>
   <details><summary>最初の回答が遅い</summary><p>初回は大量のPythonルールを読み込みます。LLMの重みをロードしているわけではありません。</p></details>
