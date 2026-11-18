@@ -171,6 +171,28 @@ class FakeSource(unittest.TestCase):
         self.assertEqual(json.load(src)["path"], "bot/modules/greeting.py")
         self.assertTrue(post("reset", {"session":"http_session_01"})["ok"])
 
+    def test_japanese_ui_sources_are_valid_utf8(self):
+        project = Path(__file__).resolve().parents[1]
+        files = (
+            "README.md",
+            "demo/static/index.html",
+            "demo/static/app.js",
+            "demo/static/styles.css",
+            "demo/static/theme.js",
+            "docs/MANUAL.source.html",
+            "docs/RESEARCH.html",
+            "docs/MANUAL.html",
+        )
+        for name in files:
+            with self.subTest(name=name):
+                content = (project / name).read_text(encoding="utf-8", errors="strict")
+                self.assertNotIn("\ufffd", content, "Replacement glyph detected")
+                self.assertNotIn("\x00", content, "Unexpected NUL byte")
+                self.assertIn("PyBot", content) if name != "demo/static/styles.css" and name != "demo/static/theme.js" else None
+        for name in ("demo/static/index.html", "docs/MANUAL.source.html", "docs/RESEARCH.html"):
+            source = (project / name).read_text(encoding="utf-8")
+            self.assertTrue('charset="utf-8"' in source.lower() or 'charset=utf-8' in source.lower())
+
     def test_user_override_does_not_download(self):
         with mock.patch.dict(os.environ, {"PYBOT_DEMO_SOURCE":str(self.root)}):
             self.assertEqual(ensure_upstream(output=lambda *_: None), self.root.resolve())
