@@ -2,10 +2,10 @@
 
 <div align="center">
 
-**64万行のルールは、「理解」にどこまで近づける？**
+<p><strong>64万行のルールは、「理解」にどこまで近づける？</strong></p>
 
-Hugging Face の [PyBot](https://github.com/huggingface/pybot) をそのまま動かし、  
-**会話 → 回答候補の比較 → 実際のPythonコードの追跡** をライブで体験する、データサイエンス勉強会用アプリです。
+<p>Hugging Face の <a href="https://github.com/huggingface/pybot">PyBot</a> をそのまま動かし、<br>
+<strong>会話 → 回答候補の比較 → 実際のPythonコードの追跡</strong> をライブで体験する、データサイエンス勉強会用アプリです。</p>
 
 <br>
 
@@ -13,11 +13,11 @@ Hugging Face の [PyBot](https://github.com/huggingface/pybot) をそのまま�
   <img src="docs/images/overview.png" alt="PyBot Live Lab 実画面：左側でPyBotと会話し、右側で回答候補・採択モジュール・優先度を比較するダークテーマのダッシュボード" width="100%">
 </a>
 
-<sub>▲ 実際のPyBotを動かして撮影した画面です。左で質問し、右で「なぜこの回答になった？」を調べます。画像をクリックすると拡大できます。</sub>
+<p><sub>▲ 実際のPyBotを動かして撮影した画面です。左で質問し、右で「なぜこの回答になった？」を調べます。画像をクリックすると拡大できます。</sub></p>
 
 <br><br>
 
-[**🚀 すぐに動かす**](#-3ステップで起動)　·　[**📖 図解マニュアル**](docs/MANUAL.html)　·　[**📚 原典・論文の図解**](docs/RESEARCH.html)　·　[**🔬 できること**](#-ライブでできること)
+<p><a href="#-3ステップで起動"><strong>🚀 すぐに動かす</strong></a>　·　<a href="docs/MANUAL.html"><strong>📖 図解マニュアル</strong></a>　·　<a href="docs/RESEARCH.html"><strong>📚 原典・論文の図解</strong></a>　·　<a href="#-ライブでできること"><strong>🔬 できること</strong></a></p>
 
 </div>
 
@@ -39,7 +39,7 @@ Hugging Face の [PyBot](https://github.com/huggingface/pybot) をそのまま�
   <img src="docs/images/code-trace.png" alt="PyBot Live Lab のソース追跡画面：回答モジュールのPythonソース、再実行で通過した行、補助関数を可視化" width="100%">
 </a>
 
-<sub>▲ ルールを選ぶと実コードへ移動。色付きの行は**会話を再実行して計測した実行行**です。元のターンとの一致・不一致も表示します。</sub>
+<sub>▲ ルールを選ぶと実コードへ移動。色付きの行は会話を再実行して計測した実行行です。元のターンとの一致・不一致も表示します。</sub>
 
 ## 🖼️ 図解で学べるマニュアルと研究資料
 
@@ -133,9 +133,6 @@ PyBotの会話処理はローカル実行ですが、**音声認識はブラウ�
 ---
 
 <div align="center">
-
-**実際に話しかけ、候補を比べ、コードを追ってみましょう。**
-
-[**⬆️ ページ上部のスクリーンショットに戻る**](#pybot-live-lab)　·　[**📖 操作ガイド**](docs/MANUAL.html)
-
+<p><strong>実際に話しかけ、候補を比べ、コードを追ってみましょう。</strong></p>
+<p><a href="#pybot-live-lab"><strong>⬆️ ページ上部のスクリーンショットに戻る</strong></a>　·　<a href="docs/MANUAL.html"><strong>📖 操作ガイド</strong></a></p>
 </div>
