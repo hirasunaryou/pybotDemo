@@ -66,7 +66,7 @@ function renderScenarios() {
 function prepareNext() {
   const s = scenarios[state.scenario];
   if (!s || state.step >= s.prompts.length) {
-    $("scenarioNote").textContent = s ? "シナリオ完了。質問を自由に変えて、反応を比べてみましょう。" : "試したいテーマを選んでください。自由な質問もできます。";
+    $("scenarioNote").textContent = s ? "ここからは質問を変えて比較できます。" : "質問例を選ぶか、自由に入力できます。";
     return;
   }
   $("questionInput").value = s.prompts[state.step];
@@ -82,7 +82,7 @@ function updateNext(input) {
 function renderConversation() {
   const area = $("conversation");
   if (state.turns.length === 0) {
-    area.innerHTML = '<div class="empty-chat"><div class="empty-orb">◎</div><h3>まずは、話しかけてみましょう。</h3><p>例えば「Hi, I&#39;m Sam.」と伝えて、名前を覚えているか確かめます。</p><button class="example-link" id="exampleBtn">この質問を使う ↗</button></div>';
+    area.innerHTML = '<div class="empty-chat"><div class="empty-orb">◎</div><h3>何を話してみますか？</h3><p>最初は名前を覚えられるか試してみましょう。</p><button class="example-link" id="exampleBtn">「Hi, I&#39;m Sam.」を試す ↗</button></div>';
     $("exampleBtn").onclick = () => { $("questionInput").value = "Hi, I'm Sam."; $("questionInput").focus(); };
     return;
   }
@@ -130,11 +130,11 @@ function renderCandidateList() {
   $("selectedModule").textContent = t ? (t.module || "runtime fallback") : "まだ会話がありません";
   $("latency").textContent = t ? t.elapsed_ms + " ms" : "— ms";
   $("candidateCount").textContent = t ? String(t.candidate_count) : "0";
-  $("resultMessage").textContent = t ? "実測された候補から arbiter が " +
-    (t.module || "fallback") + " を選択しました。" +
+  $("resultMessage").textContent = t ? "採択: " +
+    (t.module || "fallback") + "。" +
     (t.chosen_index > 0 ? " 優先度順の先頭以外が採択されています。" : "") +
-    " 候補をクリックしてコードを確認できます。" :
-    "質問を送信すると、本物のPyBotが生成した候補を表示します。";
+    " 候補を選ぶとコードを開きます。" :
+    "質問を送ると、回答候補と採択結果が見えます。";
   renderTurnComparison(t);
   if (!t) return;
   $("candidatesList").innerHTML = t.candidates.length ? t.candidates.map((c, i) => {
