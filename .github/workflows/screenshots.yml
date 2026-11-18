@@ -30,8 +30,8 @@ jobs:
           python-version: '3.11'
       - name: Install Japanese fonts for legible screenshots
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk fonts-ipafont-gothic
+          sudo timeout 70 apt-get update -qq || echo "Using cached apt metadata"
+          sudo timeout 150 env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-noto-cjk
           fc-cache -f
           fc-match -f '%{family} | %{file}\n' 'Noto Sans CJK JP:lang=ja'
       - name: Install browser only in documentation CI
