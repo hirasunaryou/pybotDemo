@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import random
+import shutil
 import tempfile
 import threading
 import unittest
@@ -192,6 +193,25 @@ class FakeSource(unittest.TestCase):
         for name in ("demo/static/index.html", "docs/MANUAL.source.html", "docs/RESEARCH.html"):
             source = (project / name).read_text(encoding="utf-8")
             self.assertTrue('charset="utf-8"' in source.lower() or 'charset=utf-8' in source.lower())
+
+    def test_unicode_and_spaces_in_source_path(self):
+        # Both Windows and macOS users may unzip projects under Japanese paths.
+        japanese = self.root / "日本語 とスペース"
+        shutil.copytree(self.root / "bot", japanese / "bot")
+        with mock.patch.dict(os.environ, {"PYBOT_DEMO_SOURCE": str(japanese)}):
+            source = ensure_upstream(output=lambda *_: None)
+            self.assertEqual(source, japanese.resolve())
+            url, server = serve(source)
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            try:
+                with urlopen(url + "api/status", timeout=10) as response:
+                    status = json.load(response)
+                self.assertEqual(status["stats"]["total"]["files"], 6)
+            finally:
+                server.shutdown()
+                server.server_close()
+                worker.join(timeout=5)
 
     def test_user_override_does_not_download(self):
         with mock.patch.dict(os.environ, {"PYBOT_DEMO_SOURCE":str(self.root)}):
