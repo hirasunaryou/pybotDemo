@@ -56,12 +56,11 @@ def main():
             })();""")
             voice_page.goto(url, wait_until="domcontentloaded")
             voice_page.locator("#voiceBtn").click()
-            voice_page.wait_for_function(
-                'document.querySelector("#questionInput").value.includes("Why is the sky blue?")',
-                timeout=15000)
-            voice_page.wait_for_function(
-                'document.querySelector("#voiceBtn").getAttribute("aria-pressed") === "false"',
-                timeout=15000)
+            # Playwright wait_for_function uses eval and is correctly blocked by
+            # our app's strict Content-Security-Policy. Use direct locator reads.
+            voice_page.wait_for_timeout(250)
+            assert "Why is the sky blue?" in voice_page.locator("#questionInput").input_value()
+            assert voice_page.locator("#voiceBtn").get_attribute("aria-pressed") == "false"
             assert voice_page.locator(".bubble-row.bot").count() == 0, "Voice auto-sent the question"
             voice_page.close()
             print("Voice dictation browser-mock test passed: editable transcript, no auto-send")
