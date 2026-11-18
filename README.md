@@ -4,8 +4,8 @@
 
 <p><strong>64万行のルールは、「理解」にどこまで近づける？</strong></p>
 
-<p>Hugging Face の <a href="https://github.com/huggingface/pybot">PyBot</a> をそのまま動かし、<br>
-<strong>会話 → 回答候補の比較 → 実際のPythonコードの追跡</strong> をライブで体験する、データサイエンス勉強会用アプリです。</p>
+<p><strong>元のPyBotとは？</strong> 2026年11月、Hugging Faceが公開した、AIエージェント群が大量のPythonルールを書いて作ったチャットボットです。推論時にはLLMの重みを使わず、元のコードは <a href="https://github.com/huggingface/pybot/blob/main/LICENSE">Apache License 2.0</a> で公開されています。</p>
+<p><strong>このLive LabはPyBotの作者・公式アプリではありません。</strong><br>公開済みのPyBotを<strong>「知る・試す・読み解く」</strong>ための独立した勉強会用ツールです。<a href="docs/RESEARCH.html">背景と原典 ↗</a></p>
 
 <br>
 
