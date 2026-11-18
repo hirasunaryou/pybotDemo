@@ -31,7 +31,7 @@ jobs:
       - name: Install browser only in documentation CI
         run: |
           python -m pip install playwright==1.56.0
-          python -m playwright install --with-deps chromium
+          python -m playwright install chromium
       - name: Capture actual UI with the pinned PyBot
         run: python tools/capture_manual.py
       - name: Assemble the standalone manual with embedded real screenshots
@@ -50,6 +50,6 @@ jobs:
           else
             git commit -m "docs: rebuild portable manual and refresh real UI previews [skip ci]"
             git fetch origin main
-            git rebase origin/main
+            git rebase -X theirs origin/main
             git push origin HEAD:main
           fi
