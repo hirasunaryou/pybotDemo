@@ -1,0 +1,38 @@
+name: Fast standalone manual build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/MANUAL.source.html'
+      - 'docs/manual.css'
+      - 'tools/build_manual.py'
+      - '.github/workflows/portable-manual.yml'
+permissions:
+  contents: write
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build fully standalone HTML using checked-in REAL screenshots
+        run: |
+          python tools/build_manual.py
+          python tools/build_manual.py --check
+      - name: Commit portable manual
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/MANUAL.html
+          if git diff --cached --quiet; then
+            echo "Standalone manual unchanged"
+          else
+            git commit -m "docs: embed CSS and real screenshots into portable manual [skip ci]"
+            git fetch origin main
+            git rebase -X theirs origin/main
+            git push origin HEAD:main
+          fi
