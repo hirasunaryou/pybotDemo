@@ -23,6 +23,19 @@ jobs:
         run: |
           python tools/build_manual.py
           python tools/build_manual.py --check
+      - name: macOS launch script — real PyBot + local web API
+        if: runner.os == 'macOS'
+        env:
+          PYBOT_LIVE_LAB_SELF_CHECK: '1'
+        run: |
+          bash -n start_mac.command
+          bash start_mac.command
+      - name: Windows batch launcher — real PyBot + local web API
+        if: runner.os == 'Windows'
+        env:
+          PYBOT_LIVE_LAB_SELF_CHECK: '1'
+        shell: cmd
+        run: call start_windows.bat
   upstream-smoke:
     name: Real upstream smoke / Ubuntu
     runs-on: ubuntu-latest
@@ -37,3 +50,4 @@ jobs:
         run: |
           node --check demo/static/app.js
           node --check demo/static/voice.js
+          node --check demo/static/theme.js
