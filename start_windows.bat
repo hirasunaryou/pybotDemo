@@ -16,5 +16,11 @@ if not errorlevel 1 (
   )
   python launch.py
 )
-if errorlevel 1 pause
+if errorlevel 1 (
+  echo PyBot Live Lab startup failed. Please check the message above.
+  pause
+  endlocal
+  exit /b 1
+)
 endlocal
+exit /b 0
