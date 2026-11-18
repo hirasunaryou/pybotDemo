@@ -30,10 +30,12 @@ jobs:
           python-version: '3.11'
       - name: Install Japanese fonts for legible screenshots
         run: |
-          sudo timeout 70 apt-get update -qq || echo "Using cached apt metadata"
-          sudo timeout 150 env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-noto-cjk
+          sudo timeout 55 apt-get update -qq || echo "Using cached apt metadata"
+          # IPA Gothic is a compact CJK font; the 61 MB Noto-CJK download was
+          # too slow on the hosted runner. Either family renders real Japanese.
+          sudo timeout 100 env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-ipafont-gothic
           fc-cache -f
-          fc-match -f '%{family} | %{file}\n' 'Noto Sans CJK JP:lang=ja'
+          fc-match -f '%{family} | %{file}\n' 'IPAGothic:lang=ja'
       - name: Install browser only in documentation CI
         run: |
           python -m pip install playwright==1.56.0
