@@ -68,3 +68,10 @@ Python 3.13などで `ssl.SSLCertVerificationError: CERTIFICATE_VERIFY_FAILED` �
 - macOS標準のcurlでも失敗する場合は `/Applications/Python 3.13/Install Certificates.command` の実行を案内します（使用中のPythonバージョンに読み替え）。
 - 再試行が成功した場合は固定コミットを `.runtime/pybot` に保存し、以後ネット接続なしでPyBotを起動できます。
 - `python -m unittest discover -s tests -v` は証明書エラー、curlの安全なオプション、再試行失敗、固定版キャッシュ再利用をモックで確認します。実機のKeychain上の証明書設定は自動では変更しません。
+
+## コード実行プレイヤー（再生・時刻バー・回答ソース）
+
+- `/api/playback` は<strong>元の会話と別のメモリ</strong>で同じターンを再実行します。実際の関数呼出しと選んだコードの行を間引き、最初と最後の重要なイベントを保持します。実行時刻が動画の再生速度と同一ではありません。
+- `docs/images/code-film.png` は実PyBotの質問「Do you know how to calculate mean?」をコードプレイヤーで再生し、最後の回答定義 `bot/knowledge/maths.py:5101` にジャンプして撮影したスクリーンショットです。
+- 回答文との完全一致はPython ASTの文字列定数を**静的に照合**した結果です。実行していないコードを「通った」とは表示せず、観測された返却行だけを区別します。
+- Playwrightで再生・停止・コマ送り・最後へのジャンプ・全画面表示を確認し、Mac/Windows/LinuxのAPI・ユニットテストと実PyBotの統合テストで動画用データの妥当性を確認します。
