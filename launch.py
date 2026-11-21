@@ -8,7 +8,7 @@ import os
 if sys.version_info < (3, 8):
     raise SystemExit("Python 3.8以上が必要です。python.org からPythonをインストールしてください。")
 
-from demo.bootstrap import ensure_upstream
+from demo.bootstrap import BootstrapError, ensure_upstream
 from demo.server import serve
 
 
@@ -45,6 +45,9 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\n終了しました。")
+    except BootstrapError as exc:
+        print("\n初回セットアップを完了できませんでした。\n" + str(exc), file=sys.stderr)
+        return 1
     except Exception:
         print("\n起動に失敗しました。以下の内容を確認してください。\n", file=sys.stderr)
         traceback.print_exc()
