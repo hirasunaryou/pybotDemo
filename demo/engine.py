@@ -140,8 +140,12 @@ class Engine:
         arbiter = (self.source / "bot" / "modules" / "arbiter.py").resolve()
         watched = {str(target), str(arbiter)}
         bot_prefix = str(self.source / "bot") + os.sep
+        module_prefix = str(self.source / "bot" / "modules") + os.sep
         hits, calls = {}, Counter()
-        events = []
+        events, phase_events, call_chain = [], [], []
+        phase_counts = Counter()
+        PHASE_METHODS = {"observe": "observe", "respond": "respond",
+                         "choose": "choose", "after": "after"}
 
         def inside_selected_responder(frame):
             # A called helper belongs to this candidate only if the selected
@@ -158,15 +162,47 @@ class Engine:
         def tracer(frame, event, arg):
             filename = frame.f_code.co_filename
             if event == "call":
+                # These are OBSERVED hook invocations, not inferred reasoning.
+                fn = frame.f_code.co_name
+                if filename.startswith(module_prefix) and (
+                    fn in ("observe", "respond", "after") or
+                    (filename == str(arbiter) and fn == "choose")
+                ):
+                    phase = PHASE_METHODS[fn]
+                    phase_counts[phase] += 1
+                    if len(phase_events) < 600:
+                        phase_events.append({
+                            "phase": phase,
+                            "module": Path(filename).stem,
+                            "at_ms": round((time.perf_counter() - start) * 1000, 2)
+                        })
+
                 is_watched = filename in watched
                 is_helper = filename.startswith(bot_prefix) and inside_selected_responder(frame)
                 if is_watched or is_helper:
                     relative = str(Path(filename).relative_to(self.source)).replace("\\", "/")
-                    key = (relative, frame.f_code.co_name, frame.f_code.co_firstlineno)
+                    key = (relative, fn, frame.f_code.co_firstlineno)
                     if key in calls or len(calls) < 4000:
                         calls[key] += 1
-                # Line-level instrumentation stays targeted and fast. The
-                # helper call graph is recorded without tracing every helper line.
+                    # Show a bounded, chronologically ordered CALL MAP. The
+                    # runtime is not rewriting one sentence token-by-token.
+                    if len(call_chain) < 210:
+                        ancestors = 0
+                        parent = frame.f_back
+                        while parent is not None and ancestors < 32:
+                            if parent.f_code.co_filename.startswith(bot_prefix):
+                                ancestors += 1
+                            parent = parent.f_back
+                        call_chain.append({
+                            "path": relative, "fn": fn,
+                            "line": frame.f_code.co_firstlineno,
+                            "depth": ancestors,
+                            "at_ms": round((time.perf_counter() - start) * 1000, 2),
+                            "kind": "arbiter" if filename == str(arbiter)
+                                    else "response" if filename == str(target)
+                                    else "helper"
+                        })
+                # Trace lines only for the chosen candidate and arbiter.
                 return tracer if is_watched else None
             if event == "line" and filename in watched:
                 rel = str(Path(filename).relative_to(self.source)).replace("\\", "/")
@@ -206,7 +242,12 @@ class Engine:
                 "calls": [{"path": path, "file": Path(path).name, "fn": fn, "line": line, "count": count}
                           for (path, fn, line), count in calls.most_common(45)],
                 "events": events,
-                "method": "同じ入力を固定seedで別メモリに再実行し、対象モジュールとarbiterの実行行を収集",
+                "phase_events": phase_events,
+                "phase_counts": dict(phase_counts),
+                "call_chain": call_chain,
+                "call_chain_truncated": len(call_chain) >= 210,
+                "replay_candidate_count": len((result or {}).get("candidates") or []),
+                "method": "同じ入力を固定seedで別メモリに再実行し、モジュールの呼出し順・選んだ候補とarbiterの実行行を収集",
                 "warning": "再実行が元の回答と一致しません。表示される行は元のターンの確定実行経路ではありません。"
                            if replay_reply != selection["reply"] or result.get("module") != selection["module"] else ""
             }
