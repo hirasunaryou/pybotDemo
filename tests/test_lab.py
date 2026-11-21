@@ -118,7 +118,7 @@ class FakeSource(unittest.TestCase):
         self.assertEqual(film["frames"][-1]["kind"], "final")
         self.assertTrue(film["candidate_return_matched"])
         self.assertTrue(any(f["kind"] == "candidate_return" for f in film["frames"]))
-        self.assertTrue(any(f["kind"] == "arbiter_call" for f in film["frames"]) is False)
+        self.assertTrue(any(f["kind"] == "arbiter_call" for f in film["frames"]))
         self.assertGreaterEqual(film["phase_counts"].get("respond", 0), 2)
         self.assertLessEqual(film["sampled_frames"], film["frame_cap"])
         self.assertEqual(self.engine.session("playback_session_1").memory, earlier_state)
