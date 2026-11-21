@@ -192,3 +192,39 @@ a:hover{color:#076256}
 .origin-caption{font-size:11px;line-height:1.85;color:#a6c9d1;background:#193748;border-left:3px solid #63dfc5;border-radius:4px;padding:11px 13px;margin:0 0 18px;max-width:650px}
 .origin-caption strong{color:#a4f5e2;letter-spacing:.07em;font-size:10px}
 .origin-caption a{color:#9cf9df;text-decoration:underline;text-underline-offset:3px}
+
+/* Translation bridge / call map explanations kept in the standalone HTML. */
+.display-tip{display:flex;align-items:flex-start;gap:18px;margin:20px 0 4px;border:1px solid #b3d8d3;border-radius:10px;background:#e4f5f1;padding:17px 20px;color:#2c6864}
+.display-tip strong{font-size:12px;min-width:140px}
+.display-tip span{font-size:12px;line-height:1.8}
+.bridge-educator{border-radius:15px;background:#142e42;color:#effff8;margin:25px 0 14px;padding:24px}
+.bridge-head span,.map-guide-label{font-size:10px;font-weight:900;letter-spacing:.17em;color:#86e2d2}
+.bridge-head h3,.map-guide h3{font-size:20px;margin:9px 0}
+.bridge-head p,.bridge-hint,.map-guide p{font-size:12px;line-height:1.9;color:#afced7;margin:7px 0}
+.bridge-head p strong{color:#ddfff7}
+.bridge-diagram{display:flex;align-items:stretch;gap:7px;margin:22px 0;overflow-x:auto}
+.bridge-diag-item{background:#203e53;border:1px solid #427184;border-radius:9px;min-width:0;flex:1;padding:15px 11px}
+.bridge-diag-item.bridge-original{background:#20584e;border-color:#5bc4ab}
+.bridge-diag-item small{display:block;color:#aea7e7;font-size:10px;letter-spacing:.08em;font-weight:900}
+.bridge-diag-item.bridge-original small{color:#84ecca}
+.bridge-diag-item strong{display:block;font-size:12px;margin:6px 0;color:#fff}
+.bridge-diag-item span{font-size:10px;color:#b6ccd8;line-height:1.7;display:block}
+.bridge-diag-arrow{align-self:center;color:#8de5d0;font-size:19px}
+.bridge-hint a{color:#9cffe8}
+.map-guide{border-radius:14px;background:#e7f4f1;padding:23px 25px;margin:26px 0;color:#26545e}
+.map-guide-label{color:#168578}
+.map-guide h3{color:#1b4653}
+.map-guide p{color:#52747d}
+.map-guide-flow{display:flex;gap:9px;align-items:center;margin:19px 0;overflow-x:auto}
+.map-guide-flow div{min-width:0;flex:1;background:#fff;border:1px solid #a8d5c8;border-radius:8px;text-align:center;padding:13px 8px}
+.map-guide-flow b{font-size:11px;color:#157366;display:block}
+.map-guide-flow span{font-size:10px;color:#4c737a;display:block}
+.map-guide-flow i{font-style:normal;color:#168f7c}
+@media(max-width:780px){
+ .display-tip{flex-direction:column;gap:7px}
+ .bridge-diagram{flex-wrap:wrap}
+ .bridge-diag-item{flex:0 0 calc(50% - 18px)}
+ .bridge-diag-arrow:nth-child(4){display:none}
+ .map-guide-flow{flex-wrap:wrap}
+ .map-guide-flow div{min-width:36%}
+}
