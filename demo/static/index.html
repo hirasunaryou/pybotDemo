@@ -8,13 +8,15 @@
 <link rel="stylesheet" href="/static/styles.css">
 <script src="/static/app.js" defer></script>
 <script src="/static/voice.js" defer></script>
+<script src="/static/translation.js" defer></script>
+<script src="/static/presentation.js" defer></script>
 <script src="/static/theme.js" defer></script>
 </head>
 <body>
 <div class="page">
 <header class="topbar">
   <div class="identity"><div class="identity-mark">P<span>✳</span></div><div><div class="brand">PYBOT <strong>LIVE LAB</strong></div><div class="brand-sub">RULE-BASED AI · INTERACTIVE WORKSHOP</div></div></div>
-  <div class="toplinks"><span id="statusDot" class="status-chip"><i></i>準備中</span><a href="/docs/MANUAL.html" target="_blank" rel="noopener">使い方 ↗</a><a href="/docs/RESEARCH.html" target="_blank" rel="noopener">研究資料 ↗</a><a class="upstream-link" href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">PyBot原典 ↗</a><button type="button" id="themeToggle" class="theme-toggle" aria-label="表示テーマを切り替え" title="ライト／ダークを切り替え">☀ ライトへ</button></div>
+  <div class="toplinks"><span id="statusDot" class="status-chip"><i></i>準備中</span><a href="/docs/MANUAL.html" target="_blank" rel="noopener">使い方 ↗</a><a href="/docs/RESEARCH.html" target="_blank" rel="noopener">研究資料 ↗</a><a class="upstream-link" href="https://github.com/huggingface/pybot" target="_blank" rel="noopener">PyBot原典 ↗</a><div class="presentation-tools" role="group" aria-label="文字サイズと発表表示"><button id="fontMinus" type="button" aria-label="文字を小さくする" title="文字を小さく">A−</button><output id="fontScale" aria-live="polite">100%</output><button id="fontPlus" type="button" aria-label="文字を大きくする" title="文字を大きく">A＋</button><button id="presentationToggle" type="button" aria-pressed="false">発表</button></div><button type="button" id="themeToggle" class="theme-toggle" aria-label="表示テーマを切り替え" title="ライト／ダークを切り替え">☀ ライトへ</button></div>
 </header>
 <section class="hero">
   <div class="eyebrow"><span class="signal"></span> DISCOVER · TRY · INSPECT <span class="dash">/</span> PYBOT STUDY LAB</div>
@@ -27,6 +29,7 @@
     <div><strong id="sourceCommit">7d63c7f</strong><small>PINNED SOURCE</small></div>
   </div>
 </section>
+<div class="provenance-bar"><span class="provenance-pure"><b>PyBot純正</b> 回答・候補・選択・記憶</span><span class="prov-divider">+</span><span class="provenance-lab"><b>Live Lab 補助</b> 日本語翻訳・経路マップ・画面表示</span><a href="/docs/MANUAL.html#source" target="_blank" rel="noopener">違いを確認 ↗</a></div>
 <main class="workspace">
 <section class="panel chat-panel">
   <div class="panel-head"><div><span class="overline">PLAYGROUND</span><h2>PyBotと会話する</h2></div><div class="head-actions"><button class="tiny-btn" id="exportBtn" title="会話と候補をJSONで保存">↓ 保存</button><button class="tiny-btn" id="resetBtn" title="会話とメモリを初期化">↺ リセット</button></div></div>
@@ -39,6 +42,7 @@
     <div class="empty-chat"><div class="empty-orb">◎</div><h3>何を話してみますか？</h3><p>最初は名前を覚えられるか試してみましょう。</p><button class="example-link" id="exampleBtn">「Hi, I'm Sam.」を試す ↗</button></div>
   </div>
   <div class="composer">
+    <div class="translation-control"><div class="translation-control-row"><span class="translation-eyebrow">LIVE LAB / OPTIONAL</span><button id="jaBridgeBtn" type="button" aria-pressed="false">日本語ブリッジ OFF</button><a href="/docs/MANUAL.html#voice" target="_blank" rel="noopener">仕組み ↗</a></div><div id="jaBridgeStatus" class="translation-status" aria-live="polite">純正モード：翻訳なし</div><details id="jaBridgeDetails" class="translation-details"><summary>翻訳の制約とプライバシー</summary><p>対応Chrome/Edgeのブラウザ内蔵翻訳を使うLive Labの補助機能で、PyBot純正機能ではありません。初回は言語パックのダウンロードが必要な場合があります。送信する英文とPyBotの英語回答を必ず確認でき、英語と日本語の意味が違う場合があります。翻訳未対応なら純正モードで使用してください。</p></details></div>
     <label for="questionInput">YOUR MESSAGE <span>英語での質問がおすすめ</span></label>
     <div class="composer-row"><textarea id="questionInput" rows="2" maxlength="1000" placeholder="Ask PyBot anything… 例: Why is the sky blue?"></textarea><button id="voiceBtn" type="button" class="mic-button" title="音声を文字起こし（送信はしません）" aria-label="音声入力を開始" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg><span id="voiceBtnText">音声</span></button><button id="sendBtn" class="send-btn" aria-label="質問を送信"><span>送信</span><span class="send-icon">↗</span></button></div>
     <div class="voice-bar"><div class="voice-main"><span id="voiceStatus" aria-live="polite">マイクから文字起こしできます（送信前に確認）</span><span id="voicePulse" class="voice-pulse hidden" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><label class="voice-lang" for="voiceLang">音声言語 <select id="voiceLang"><option value="en-US">English</option><option value="ja-JP">日本語</option></select></label></div>
@@ -47,8 +51,8 @@
   </div>
 </section>
 <section class="panel insight-panel">
-  <div class="panel-head"><div><span class="overline">INSIDE PYBOT</span><h2>回答が生まれるまで</h2></div><div class="live-flag"><span>●</span> LIVE ANALYSIS</div></div>
-  <div class="analysis-nav" role="tablist" aria-label="解析表示"><button role="tab" data-tab="candidates" aria-selected="true" class="active">候補と採択</button><button role="tab" data-tab="code" aria-selected="false">ソース追跡</button><button role="tab" data-tab="architecture" aria-selected="false">内部構造</button><button role="tab" data-tab="discussion" aria-selected="false">議論</button></div>
+  <div class="panel-head"><div><span class="overline">INSIDE PYBOT · LAB OBSERVATION</span><h2>回答が生まれるまで</h2></div><div class="live-flag"><span>●</span> LIVE ANALYSIS</div></div>
+  <div class="analysis-nav" role="tablist" aria-label="解析表示"><button role="tab" data-tab="candidates" aria-selected="true" class="active">候補と採択</button><button role="tab" data-tab="code" aria-selected="false">ソース追跡</button><button role="tab" data-tab="architecture" aria-selected="false">処理マップ</button><button role="tab" data-tab="discussion" aria-selected="false">議論</button></div>
   <div class="tab-body" id="tab-candidates" role="tabpanel">
     <div class="result-top"><div><div class="result-label">選ばれた回答モジュール</div><div class="result-module" id="selectedModule">まだ会話がありません</div></div><div class="speed-pill" id="latency">— ms</div></div>
     <div class="result-sub" id="resultMessage">質問を送ると、回答候補と採択結果が見えます。</div>
@@ -68,10 +72,14 @@
     <div class="search-section"><div class="result-label">コード内を検索</div><div class="search-row"><input id="searchInput" placeholder="例: PRIORITY, topic, remember"><select id="searchScope"><option value="modules">回答モジュール</option><option value="all">全ファイル</option></select><button id="searchBtn">探す</button></div><div id="searchResults" class="search-results"></div></div>
   </div>
   <div class="tab-body hidden" id="tab-architecture" role="tabpanel">
-    <p class="section-lead">元のPyBotの <code>runtime.py</code> に基づく処理の流れです。<a href="/docs/RESEARCH.html#architecture" target="_blank" rel="noopener">仕組みの詳細 ↗</a></p>
+    <div class="trace-map-head"><div><span class="overline">OBSERVED REPLAY · LIVE LAB</span><h3>どのように候補を作り、選んだ？</h3></div><button id="traceMapBtn" type="button" class="accent-btn" disabled>▶ 経路を観測</button></div>
+    <p class="section-lead">元のPyBotを別メモリで再実行して観測した呼出し経路です。<strong>文章を少しずつ書き換えるのではなく、複数の回答候補から一つを選びます。</strong> <a href="/docs/RESEARCH.html#architecture" target="_blank" rel="noopener">技術解説 ↗</a></p>
+    <div id="traceMap" class="trace-map"><div class="map-empty">質問したら「経路を観測」を押してください。実際の呼出し順と、追いかけたい関数をここに表示します。</div></div>
+    <details class="map-default-structure"><summary>PyBot公式の基本構造を見る</summary>
     <div class="arch-diagram"><div class="arch-node input-node">USER INPUT <strong>質問</strong></div><div class="arch-down">↓</div><div class="arch-node memory-node">OBSERVE <strong>会話の観察・記憶更新</strong></div><div class="arch-down">↓</div><div class="arch-fan"><div class="arch-node">RULE A<small>respond()</small></div><div class="arch-node">RULE B<small>respond()</small></div><div class="arch-node">RULE C<small>respond()</small></div></div><div class="arch-down">↓ 候補を集約</div><div class="arch-node arbiter-node">ARBITER <strong>どの候補を選ぶ？</strong></div><div class="arch-down">↓</div><div class="arch-node output-node">REPLY <strong>回答 + メモリ更新</strong></div></div>
     <div class="arch-grid" id="architectureStats"></div>
     <p class="note-block">優先度は確信度ではありません。採択は <code>arbiter</code> が決めます。<a href="/docs/RESEARCH.html#architecture" target="_blank" rel="noopener">技術解説 ↗</a></p>
+    </details>
   </div>
   <div class="tab-body hidden" id="tab-discussion" role="tabpanel">
     <p class="section-lead">気になった問いを選んで再実験。<a href="/docs/RESEARCH.html#questions" target="_blank" rel="noopener">考察のヒント ↗</a></p>
