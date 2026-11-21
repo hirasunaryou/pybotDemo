@@ -134,6 +134,14 @@ def main():
             assert frame_count > 5, "Expected multiple observed code frames"
             page.locator("#filmNext").click()
             assert page.locator("#filmSeek").input_value() == "1"
+            # Emulate user dragging the range thumb to a mid-film frame:
+            mid = frame_count // 2
+            page.locator("#filmSeek").evaluate("""(element, position) => {
+              element.value=String(position);
+              element.dispatchEvent(new Event("input",{bubbles:true}));
+            }""", mid)
+            assert int(page.locator("#filmSeek").input_value()) == mid
+            assert ("再生位置 " + str(mid + 1)) in page.locator("#filmTime").inner_text()
             page.locator("#filmFirst").click()
             assert page.locator("#filmSeek").input_value() == "0"
             page.locator("#filmPlay").click()
