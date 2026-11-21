@@ -35,6 +35,8 @@ def main():
         for picture in screenshots.all():
             assert picture.evaluate("(img) => img.complete && img.naturalWidth > 100")
         assert page.locator(".trace-figure img").evaluate("(img) => img.complete && img.naturalWidth > 100")
+        assert page.locator(".film-manual-visual img").evaluate(
+            "(img) => img.complete && img.naturalWidth > 100"), "Video-style player screenshot did not load"
         color = page.locator(".guide-top").evaluate("(el) => getComputedStyle(el).backgroundColor")
         assert color != "rgba(0, 0, 0, 0)", "Manual stylesheet did not load"
         page.screenshot(path=str(images / "manual-preview.png"), full_page=False)
