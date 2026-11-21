@@ -6,7 +6,11 @@ No pip packages, Git installation, or LLM credentials are needed.
 import os
 from pathlib import Path, PurePosixPath
 import shutil
+import ssl
+import subprocess
+import sys
 import tempfile
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -15,6 +19,104 @@ CACHE = PROJECT_ROOT / ".runtime" / "pybot"
 UPSTREAM_REPO = "https://github.com/huggingface/pybot"
 UPSTREAM_COMMIT = "7d63c7fbebb44c7e466e5c8b5c1f341ab767929e"
 MAX_ARCHIVE = 100 * 1024 * 1024
+
+
+class BootstrapError(RuntimeError):
+    """An actionable first-run error, not an unexpected application crash."""
+
+
+def _download_with_python(request, destination):
+    """Fetch using Python's normal verified HTTPS connection."""
+    with urllib.request.urlopen(request, timeout=90) as response, destination.open("wb") as dest:
+        count = 0
+        while True:
+            block = response.read(256 * 1024)
+            if not block:
+                break
+            count += len(block)
+            if count > MAX_ARCHIVE:
+                raise BootstrapError("PyBotのダウンロードサイズが安全上の上限を超えました。")
+            dest.write(block)
+
+
+def _is_certificate_failure(error):
+    """Only a genuine certificate verification error warrants native-curl fallback."""
+    root = error
+    for _ in range(5):
+        if isinstance(root, ssl.SSLCertVerificationError):
+            return True
+        if isinstance(root, ssl.SSLError) and (
+            "CERTIFICATE_VERIFY_FAILED" in str(root) or "certificate verify failed" in str(root).lower()
+        ):
+            return True
+        root = getattr(root, "reason", None) or getattr(root, "__cause__", None)
+        if root is None:
+            break
+    return False
+
+
+def _native_curl():
+    """macOS system curl uses native platform trust; other platforms use PATH curl."""
+    preferred = Path("/usr/bin/curl")
+    if sys.platform == "darwin" and preferred.is_file():
+        return str(preferred)
+    return shutil.which("curl")
+
+
+def _download_with_native_curl(url, destination):
+    """Retry with the OS certificate trust store WITHOUT disabling TLS verification.
+
+    On macOS, python.org's Python may lack its CA bundle even though /usr/bin/curl
+    correctly verifies the same HTTPS site against the system's trusted roots.
+    """
+    curl = _native_curl()
+    if not curl:
+        raise BootstrapError("システムのcurlコマンドが見つかりませんでした。")
+    args = [
+        curl, "--fail", "--location", "--silent", "--show-error",
+        "--proto", "=https", "--proto-redir", "=https",
+        "--tlsv1.2", "--connect-timeout", "20", "--max-time", "150",
+        "--max-filesize", str(MAX_ARCHIVE),
+        "--output", str(destination), url,
+    ]
+    try:
+        result = subprocess.run(
+            args, capture_output=True, text=True, timeout=165, check=False
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise BootstrapError("システムcurlでの取得に失敗しました: " + str(exc)) from exc
+    if result.returncode != 0:
+        detail = (result.stderr or "").strip()[:500] or ("終了コード " + str(result.returncode))
+        raise BootstrapError("システムcurlでHTTPS取得に失敗しました: " + detail)
+    if not destination.is_file() or not 0 < destination.stat().st_size <= MAX_ARCHIVE:
+        raise BootstrapError("取得したファイルが空、または安全上のサイズ上限を超えています。")
+
+
+def _download_securely(url, archive, output):
+    request = urllib.request.Request(url, headers={"User-Agent": "pybot-live-lab/1.0"})
+    try:
+        _download_with_python(request, archive)
+        return
+    except Exception as original:
+        if not _is_certificate_failure(original):
+            raise BootstrapError("PyBotのHTTPSダウンロードに失敗しました: " + str(original)) from original
+        output("PythonのSSL証明書を検証できません。OSの証明書を使う安全な方法で再試行します…")
+        try:
+            _download_with_native_curl(url, archive)
+        except BootstrapError as second:
+            suggestion = (
+                "\nMacのPython.org版の場合: Finder → アプリケーション → "
+                "Python 3.13 → Install Certificates.command を実行してください。"
+                if sys.platform == "darwin" else
+                "\nOSの証明書設定とネットワーク接続を確認してください。"
+            )
+            raise BootstrapError(
+                "初回のPyBot取得でSSL証明書を検証できませんでした。"
+                + suggestion
+                + "\nTLS証明書検証を無効化する処理は実施していません。"
+                + "\n再試行の詳細: " + str(second)
+            ) from second
+        output("OSの証明書検証を利用して、PyBotを安全に取得しました。")
 
 
 def _valid(path):
@@ -42,24 +144,7 @@ def ensure_upstream(output=print):
         tmp = Path(tmp_name)
         archive = tmp / "source.zip"
         url = "https://codeload.github.com/huggingface/pybot/zip/" + UPSTREAM_COMMIT
-        req = urllib.request.Request(url, headers={"User-Agent": "pybot-live-lab/1.0"})
-        try:
-            with urllib.request.urlopen(req, timeout=90) as response, archive.open("wb") as dest:
-                amount = 0
-                while True:
-                    block = response.read(256 * 1024)
-                    if not block:
-                        break
-                    amount += len(block)
-                    if amount > MAX_ARCHIVE:
-                        raise RuntimeError("PyBotアーカイブが安全上のサイズ上限を超えました")
-                    dest.write(block)
-        except Exception as exc:
-            raise RuntimeError(
-                "PyBotの初回ダウンロードに失敗しました。ネット接続を確認して再度起動するか、"
-                "公式PyBotを別途クローンして環境変数 PYBOT_DEMO_SOURCE を指定してください。"
-                " 原因: " + str(exc)
-            ) from exc
+        _download_securely(url, archive, output)
         stage = tmp / "source"
         stage.mkdir()
         with zipfile.ZipFile(archive) as z:
