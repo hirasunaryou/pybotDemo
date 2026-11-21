@@ -59,3 +59,12 @@ python -m unittest discover -s tests -v
 - Web Speech APIはブラウザ依存で、一部の実装では音声を外部サービスへ送る可能性があります。音声の完全オフライン動作は保証しません。
 - 解析用の実行行トレースは会話の**再実行**に基づきます。回答が一致しないときは元のターンの確定経路として扱えません。
 - MacとWindowsのOS権限ダイアログやマイクを伴う操作は、今後の実機確認が必要です。
+
+## macOS（Python.org版）の初回HTTPS証明書エラー
+
+Python 3.13などで `ssl.SSLCertVerificationError: CERTIFICATE_VERIFY_FAILED` が出る場合、ローカルのPythonのCA証明書設定が原因のことがあります。
+
+- Live Labは `urllib.request` で通常の証明書検証を行い、**証明書検証エラーの場合だけ**macOS標準 `/usr/bin/curl` でシステムの信頼済み証明書により再試行します。どちらもSSL/TLS検証を無効にしません。
+- macOS標準のcurlでも失敗する場合は `/Applications/Python 3.13/Install Certificates.command` の実行を案内します（使用中のPythonバージョンに読み替え）。
+- 再試行が成功した場合は固定コミットを `.runtime/pybot` に保存し、以後ネット接続なしでPyBotを起動できます。
+- `python -m unittest discover -s tests -v` は証明書エラー、curlの安全なオプション、再試行失敗、固定版キャッシュ再利用をモックで確認します。実機のKeychain上の証明書設定は自動では変更しません。
