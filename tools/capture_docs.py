@@ -30,7 +30,10 @@ def main():
         assert page.locator(".guide-nav").count() == 1
         assert page.locator(".step-card").count() == 3
         assert page.locator("#voice").count() == 1
-        assert page.locator(".screen-figure img").evaluate("(img) => img.complete && img.naturalWidth > 100")
+        screenshots = page.locator(".screen-figure img")
+        assert screenshots.count() == 2, "Expected app overview and traced call map"
+        for picture in screenshots.all():
+            assert picture.evaluate("(img) => img.complete && img.naturalWidth > 100")
         assert page.locator(".trace-figure img").evaluate("(img) => img.complete && img.naturalWidth > 100")
         color = page.locator(".guide-top").evaluate("(el) => getComputedStyle(el).backgroundColor")
         assert color != "rgba(0, 0, 0, 0)", "Manual stylesheet did not load"
