@@ -108,6 +108,46 @@ class FakeSource(unittest.TestCase):
         # Replaying for instrumentation must NOT add another turn to the real chat.
         self.assertEqual(len(self.engine.session("test_session_2").memory["turns"]), 1)
 
+    def test_seekable_playback_preserves_live_memory(self):
+        first = self.engine.ask("playback_session_1", "Hello!")
+        earlier_state = dict(self.engine.session("playback_session_1").memory)
+        film = self.engine.playback("playback_session_1", 0)
+        self.assertTrue(film["replay_equal"])
+        self.assertGreater(len(film["frames"]), 1)
+        self.assertEqual(film["frames"][0]["kind"], "start")
+        self.assertEqual(film["frames"][-1]["kind"], "final")
+        self.assertTrue(film["candidate_return_matched"])
+        self.assertTrue(any(f["kind"] == "candidate_return" for f in film["frames"]))
+        self.assertTrue(any(f["kind"] == "arbiter_call" for f in film["frames"]) is False)
+        self.assertGreaterEqual(film["phase_counts"].get("respond", 0), 2)
+        self.assertLessEqual(film["sampled_frames"], film["frame_cap"])
+        self.assertEqual(self.engine.session("playback_session_1").memory, earlier_state)
+        self.assertEqual(len(self.engine.session("playback_session_1").turns), 1)
+
+    def test_playback_unknown_turn_rejected(self):
+        self.engine.ask("playback_session_2", "hello")
+        with self.assertRaises(InputError):
+            self.engine.playback("playback_session_2", 999)
+
+    def test_static_source_literal_and_return_sites(self):
+        from demo.playback import source_literal_locations
+        phrase = ("The mean, which is what most people mean by an average, "
+                  "is the total shared out evenly with this example.")
+        source = self.root / "bot" / "knowledge" / "maths.py"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text(
+            "_AVERAGE_EXPLAIN = (\n"
+            "  \"The mean, which is what most people mean by an average, \"\n"
+            "  \"is the total shared out evenly with this example.\")\n"
+            "def solve():\n"
+            "  return _AVERAGE_EXPLAIN\n", encoding="utf-8")
+        locations = source_literal_locations(self.root, phrase)
+        self.assertEqual(locations[0]["path"], "bot/knowledge/maths.py")
+        self.assertTrue(locations[0]["verified_equal"])
+        self.assertEqual(locations[0]["symbol"], "_AVERAGE_EXPLAIN")
+        self.assertEqual(locations[0]["line"], 1)
+        self.assertEqual(locations[0]["references"][0]["line"], 5)
+
     def test_source_and_search(self):
         line = self.engine.entry_line("greeting")
         self.assertGreater(line, 1)
