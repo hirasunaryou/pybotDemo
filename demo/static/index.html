@@ -12,6 +12,7 @@
 <script src="/static/translation.js" defer></script>
 <script src="/static/presentation.js" defer></script>
 <script src="/static/trace-map.js" defer></script>
+<script src="/static/code-player.js" defer></script>
 <script src="/static/theme.js" defer></script>
 </head>
 <body>
@@ -74,8 +75,49 @@
     <div class="search-section"><div class="result-label">コード内を検索</div><div class="search-row"><input id="searchInput" placeholder="例: PRIORITY, topic, remember"><select id="searchScope"><option value="modules">回答モジュール</option><option value="all">全ファイル</option></select><button id="searchBtn">探す</button></div><div id="searchResults" class="search-results"></div></div>
   </div>
   <div class="tab-body hidden" id="tab-architecture" role="tabpanel">
-    <div class="trace-map-head"><div><span class="overline">OBSERVED REPLAY · LIVE LAB</span><h3>どのように候補を作り、選んだ？</h3></div><button id="traceMapBtn" type="button" class="accent-btn" disabled>▶ 経路を観測</button></div>
+    <div class="trace-map-head"><div><span class="overline">OBSERVED REPLAY · LIVE LAB</span><h3>どのように候補を作り、選んだ？</h3></div><div class="trace-buttons"><button id="filmGenerateBtn" type="button" class="film-generate" disabled>▶ コードを再生</button><button id="traceMapBtn" type="button" class="accent-btn" disabled>経路を一覧</button></div></div>
     <p class="section-lead">元のPyBotを別メモリで再実行して観測した呼出し経路です。<strong>文章を少しずつ書き換えるのではなく、複数の回答候補から一つを選びます。</strong> <a href="/docs/RESEARCH.html#architecture" target="_blank" rel="noopener">技術解説 ↗</a></p>
+
+    <section id="filmPlayer" class="film-player hidden" aria-label="PyBot実行コードプレイヤー">
+      <div class="film-topline">
+        <div><span class="film-overline">PYBOT / REPLAY CODE FILM</span><h3>コード実行プレイヤー</h3></div>
+        <button type="button" id="filmExpand" class="film-expand" aria-pressed="false" title="画面いっぱいに拡大">⤢ 拡大</button>
+      </div>
+      <div id="filmTrust" class="film-trust" role="status" aria-live="polite">再実行の観測データを準備します。</div>
+      <div id="filmStages" class="film-stages" aria-label="処理段階へジャンプ"></div>
+      <div class="film-explain">
+        <div><span class="film-flag" id="filmEventType">観測段階</span><span class="film-counter" id="filmCounter">—</span></div>
+        <h4 id="filmPhase">処理の流れ</h4>
+        <p id="filmPurpose">選んだコードが何を扱う場所かを表示します。</p>
+        <div id="filmFunctionDoc" class="film-doc"></div>
+      </div>
+      <div class="film-codebar">
+        <span id="filmFile">PyBotの元コードを表示</span>
+        <a id="filmGithub" target="_blank" rel="noopener" href="https://github.com/huggingface/pybot">原典で開く ↗</a>
+      </div>
+      <div id="filmCode" class="film-code" tabindex="0" aria-label="再生位置で実行されたPythonソース">再生するとPythonの実コードが表示されます。</div>
+      <div class="film-transport">
+        <div class="film-time-row"><span id="filmTime">再生位置 0 / 0</span><span id="filmElapsed">実測時間  —</span></div>
+        <input type="range" id="filmSeek" min="0" max="1" value="0" step="1" aria-label="コード遷移の再生位置を指定">
+        <div class="film-controls">
+          <button type="button" id="filmFirst" aria-label="最初へ" title="最初へ">|◀</button>
+          <button type="button" id="filmPrevious" aria-label="前の処理へ" title="前の処理へ">◀</button>
+          <button type="button" id="filmPlay" class="film-play" aria-label="再生する">▶ 再生</button>
+          <button type="button" id="filmNext" aria-label="次の処理へ" title="次の処理へ">▶</button>
+          <button type="button" id="filmLast" aria-label="最後の回答コードへ" title="最後の回答コードへ">▶|</button>
+          <button type="button" id="filmSpeed" title="再生速度を変更">×1</button>
+        </div>
+        <p class="film-transport-hint">時刻バーをドラッグして巻き戻し・早送り。矢印キーで1コマずつ、スペースで再生／停止。「最後へ」は回答文のソース照合へ進みます。</p>
+      </div>
+      <div class="film-outcome">
+        <span>PYBOT 純正 / 最終的に採択された英語回答</span>
+        <p id="filmAnswer">—</p>
+      </div>
+      <details class="film-method"><summary>この動画の観測範囲と、静的なソース照合について</summary>
+        <p>これは実際のPyBotを同じ入力・初期seedで<strong>別途再実行</strong>して取得した関数の呼び出しと重要行を、見やすく間引いて再生するものです。実行時間を動画の長さに置き換えており、原則として関数が呼び出されたことは回答への因果的寄与の証明ではありません。</p>
+        <p>再生の最後には、元の回答文と<strong>完全一致する文字列定義</strong>がソース内に存在する場合のみ、静的検索でその場所に移動します。ここは<strong>実行時の時刻ではない「後からのソース調査」</strong>です。実際に通過したreturn行は別途明示します。</p>
+      </details>
+    </section>
     <div id="traceMap" class="trace-map"><div class="map-empty">質問したら「経路を観測」を押してください。実際の呼出し順と、追いかけたい関数をここに表示します。</div></div>
     <details class="map-default-structure"><summary>PyBot公式の基本構造を見る</summary>
     <div class="arch-diagram"><div class="arch-node input-node">USER INPUT <strong>質問</strong></div><div class="arch-down">↓</div><div class="arch-node memory-node">OBSERVE <strong>会話の観察・記憶更新</strong></div><div class="arch-down">↓</div><div class="arch-fan"><div class="arch-node">RULE A<small>respond()</small></div><div class="arch-node">RULE B<small>respond()</small></div><div class="arch-node">RULE C<small>respond()</small></div></div><div class="arch-down">↓ 候補を集約</div><div class="arch-node arbiter-node">ARBITER <strong>どの候補を選ぶ？</strong></div><div class="arch-down">↓</div><div class="arch-node output-node">REPLY <strong>回答 + メモリ更新</strong></div></div>
