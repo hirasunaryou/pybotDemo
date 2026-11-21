@@ -119,6 +119,7 @@ section{padding:58px 0}h2{font-size:28px}.origin-split,.composition,.benchmark-g
 <section id="origin"><div class="eyebrow">01 / THE IMPORTANT DISTINCTION</div><h2>開発にはLLM。<em>実行にはLLMなし。</em></h2><p class="lead">PyBotは「AIを使わずに作られた」のではありません。AIエージェントたちが大量のPythonルールを書き、完成したプログラムはモデルの重みを使わずに会話を処理する、という実験です。</p>
 <div class="origin-split"><article class="origin-card"><div class="band">DEVELOPMENT / AI WRITES RULES</div><h3>作ったとき</h3><div class="mini-flow"><span>AIエージェント群</span><i>→</i><span>ルールの生成・テスト</span><i>→</i><span>Pythonコード</span></div><p>1,000以上のエージェントが5,000以上のバージョンを作成・評価したとREADMEに記されています。開発工程にはAIモデルが関与しています。</p></article>
 <article class="origin-card dark"><div class="band">INFERENCE / RULES EXECUTE</div><h3>使うとき</h3><div class="mini-flow"><span>ユーザー入力</span><i>→</i><span>Pythonの規則</span><i>→</i><span>回答</span></div><p>推論時は条件分岐、正規表現、知識辞書、メモリ、選択器を実行。トークン生成用のニューラルネットワークの重みは使用しません。</p></article></div>
+<div class="contrast-note"><strong>Live Labの観察補助：</strong>日本語翻訳・音声文字起こし・動的関数マップはPyBot純正の機能ではありません。実行時のPyBotの回答・候補と、補助ツールが表示する解説・翻訳を必ず区別してください。</div>
 <div class="contrast-note">問い：大量のルールを自動生成することは、ニューラルネットワークのパラメータを学習することと何が違うのでしょうか。どちらも大規模な探索ですが、実行時の表現・一般化・保守の性質は異なります。</div></section>
 <section id="architecture"><div class="eyebrow">02 / SOURCE-CODE ARCHITECTURE</div><h2>「会話ができるように見える」<em>4つの段階</em></h2><p class="lead">公式リポジトリの <code>bot/runtime.py</code> に記された流れを図にしました。実際には多数のモジュールが回答候補を提出し、<code>arbiter.py</code> が一つを選びます。</p>
 <div class="pipeline"><div class="pipeline-label">PYBOT RUNTIME · CONCEPTUAL FLOW</div><div class="pipe-track">
