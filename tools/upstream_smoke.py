@@ -49,7 +49,12 @@ def main():
     assert origin["symbol"] == "_AVERAGE_EXPLAIN", origin
     assert origin["line"] == 5101, origin
     assert any(x["line"] == 5196 for x in origin["references"]), origin
+    assert any(x["path"] == "bot/knowledge/maths.py" and x["line"] == 5196
+               for x in film["executed_return_sites"]), (
+        "Expected the real average-answer rule's return line in replay", film["executed_return_sites"]
+    )
     print("Mean answer exact source:", origin["path"], "line", origin["line"])
+    print("Observed return-site lines:", film["executed_return_sites"])
     print("Mean answer static return candidates:", [x["line"] for x in origin["references"]])
     print("Playback:", film["call_count"], "observed calls,", len(film["frames"]),
           "selected display frames; candidate-return matched:", film["candidate_return_matched"])
