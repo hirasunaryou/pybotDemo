@@ -202,6 +202,9 @@ class FakeSource(unittest.TestCase):
             self.assertIn('id="jaBridgeBtn"', html)
             self.assertIn('id="fontPlus"', html)
             self.assertIn('id="traceMap"', html)
+            self.assertIn('id="filmPlayer"', html)
+            self.assertIn('id="filmSeek"', html)
+            self.assertIn('id="filmGenerateBtn"', html)
             self.assertIn('data-tab="architecture"', html)
             self.assertIn('href="/docs/RESEARCH.html"', html)
         with urlopen(url + "static/voice.js", timeout=10) as response:
@@ -216,6 +219,8 @@ class FakeSource(unittest.TestCase):
         for name, needle in (("translation.js", "Translator.create"),
                              ("presentation.js", "--lab-font-scale"),
                              ("trace-map.js", "phase_counts"),
+                             ("code-player.js", "source_matches"),
+                             ("code-player.css", ".film-player"),
                              ("enhancements.css", ".map-step")):
             with urlopen(url + "static/" + name, timeout=10) as response:
                 self.assertIn(needle, response.read().decode("utf-8"))
@@ -233,6 +238,10 @@ class FakeSource(unittest.TestCase):
         self.assertEqual(item["module"], "greeting")
         trace = post("trace", {"session":"http_session_01","turn_index":0,"module":"greeting"})
         self.assertTrue(trace["replay_equal"])
+        movie = post("playback", {"session":"http_session_01","turn_index":0})
+        self.assertTrue(movie["replay_equal"])
+        self.assertGreater(len(movie["frames"]), 1)
+        self.assertTrue(any(x["kind"] == "final" for x in movie["frames"]))
         src = urlopen(url+"api/source?module=greeting", timeout=10)
         self.assertEqual(json.load(src)["path"], "bot/modules/greeting.py")
         self.assertTrue(post("reset", {"session":"http_session_01"})["ok"])
