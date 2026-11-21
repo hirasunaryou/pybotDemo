@@ -52,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/MANUAL.html docs/images/overview.png docs/images/overview-light.png docs/images/code-trace.png docs/images/trace-map.png docs/images/manual-preview.png docs/images/research-preview.png
+          git add docs/MANUAL.html docs/images/overview.png docs/images/overview-light.png docs/images/code-trace.png docs/images/trace-map.png docs/images/code-film.png docs/images/manual-preview.png docs/images/research-preview.png
           if git diff --cached --quiet; then
             echo "Manual and screenshots unchanged"
           else
