@@ -86,6 +86,21 @@ def main():
             page.locator('button[data-scenario="0"]').click()
             page.locator("#sendBtn").click()
             page.locator(".bubble-row.bot").first.wait_for(timeout=180000)
+            assert "PyBot純正" in page.locator(".reply-provenance").first.inner_text()
+            assert page.locator("#jaBridgeBtn").get_attribute("aria-pressed") == "false"
+            original_font = float(page.locator(".bubble-row.bot .bubble").first.evaluate(
+                "(el) => parseFloat(getComputedStyle(el).fontSize)"))
+            page.locator("#fontPlus").click()
+            assert "125%" in page.locator("#fontScale").inner_text()
+            larger_font = float(page.locator(".bubble-row.bot .bubble").first.evaluate(
+                "(el) => parseFloat(getComputedStyle(el).fontSize)"))
+            assert larger_font > original_font * 1.2, (larger_font, original_font)
+            page.locator("#presentationToggle").click()
+            assert page.locator("html").get_attribute("data-presentation") == "on"
+            page.locator("#presentationToggle").click()
+            page.locator("#fontMinus").click()
+            assert "100%" in page.locator("#fontScale").inner_text()
+            print("Presentation font scaling and focused mode: passed")
             assert_readable(page, "Dark")
             page.locator(".workspace").screenshot(path=str(output / "overview.png"))
             # Real light-mode screenshot from the SAME conversation, not a design mock.
@@ -100,6 +115,13 @@ def main():
             page.locator("#traceBtn").click()
             page.locator(".trace-note.good, .trace-note.warn").first.wait_for(timeout=180000)
             page.locator(".insight-panel").screenshot(path=str(output / "code-trace.png"))
+            page.locator('button[data-tab="architecture"]').click()
+            assert page.locator(".map-step").count() == 4
+            assert page.locator(".map-function").count() > 0
+            assert page.locator(".map-flag.lab").count() == 1
+            page.locator(".map-function").first.click()
+            assert page.locator('button[data-tab="code"]').get_attribute("aria-selected") == "true"
+            print("Replay hook phases and clickable function call map: passed")
             page.locator("#themeToggle").click()
             assert page.locator("html").get_attribute("data-theme") == "light"
             page.reload(wait_until="domcontentloaded")
@@ -155,6 +177,47 @@ def main():
             assert "Win+H" in unsupported.locator("#voiceStatus").inner_text()
             unsupported.close()
             print("Voice unsupported-browser fallback test passed")
+
+            # The translation experiment is intentionally isolated from
+            # real on-device models. A mocked browser model verifies that the
+            # untranslated original PyBot reply and both bridge texts appear.
+            translate_page = browser.new_page(viewport={"width": 1280, "height": 870})
+            translate_page.add_init_script("""(function() {
+              class MockTranslator {
+                static create(options) {
+                  return Promise.resolve({
+                    translate: async (text) => options.sourceLanguage === "ja"
+                      ? "Why is the sky blue?"
+                      : "空が青く見える理由を説明します（模擬和訳）。",
+                    destroy: () => {}
+                  });
+                }
+              }
+              window.Translator = MockTranslator;
+            })();""")
+            translate_page.goto(url, wait_until="domcontentloaded")
+            translate_page.locator("#jaBridgeBtn").click()
+            translate_page.locator("#jaBridgeBtn.is-on").wait_for(timeout=12000)
+            translate_page.locator("#questionInput").fill("空が青いのはなぜ？")
+            translate_page.locator("#sendBtn").click()
+            translate_page.locator(".bubble-row.bot").first.wait_for(timeout=180000)
+            assert "空が青いのはなぜ？" in translate_page.locator(".bubble-row.user .bubble").last.inner_text()
+            assert "Why is the sky blue?" in translate_page.locator(".message-provenance.lab").last.inner_text()
+            assert "PyBot純正" in translate_page.locator(".reply-provenance").last.inner_text()
+            assert "模擬和訳" in translate_page.locator(".translated-reply").last.inner_text()
+            translate_page.locator("#jaBridgeBtn").click()
+            assert translate_page.locator("#jaBridgeBtn").get_attribute("aria-pressed") == "false"
+            translate_page.close()
+            print("Japanese bridge browser-mock end-to-end: raw PyBot reply + distinct Lab translations passed")
+
+            unsupported_translation = browser.new_page()
+            unsupported_translation.add_init_script("""(function() {
+              window.Translator = undefined;
+            })();""")
+            unsupported_translation.goto(url, wait_until="domcontentloaded")
+            assert unsupported_translation.locator("#jaBridgeBtn").is_disabled()
+            unsupported_translation.close()
+            print("Unsupported Translator API degrades cleanly to pure PyBot")
             print("Captured real PyBot UI screenshots in", output)
             browser.close()
     finally:
