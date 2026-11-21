@@ -42,6 +42,7 @@ function toggleBusy(busy, label) {
   $("sendBtn").disabled = busy;
   $("resetBtn").disabled = busy;
   $("traceBtn").disabled = busy || !state.module || state.active < 0;
+  $("traceMapBtn").disabled = busy || !state.module || state.active < 0;
   $("busyText").textContent = busy ? (label || "PyBotが実際に処理しています…") : "Enterで送信 / Shift+Enterで改行";
 }
 function tab(id) {
@@ -86,13 +87,28 @@ function renderConversation() {
     $("exampleBtn").onclick = () => { $("questionInput").value = "Hi, I'm Sam."; $("questionInput").focus(); };
     return;
   }
-  area.innerHTML = state.turns.map((t,i) =>
-    '<div class="bubble-row user"><div class="bubble-main"><div class="bubble">' + esc(t.text) + '</div></div></div>' +
-    '<div class="bubble-row bot"><div class="speaker">P</div><div class="bubble-main"><div class="bubble">' + esc(t.reply) +
-    '</div><div class="bubble-meta"><span class="mini-tag">' + esc(t.module || "fallback") +
-    '</span><span>' + esc(t.elapsed_ms) + ' ms · ' + esc(t.candidate_count) +
-    ' candidates</span><button data-turn="' + i + '">内部を見る ↗</button></div></div></div>'
-  ).join("");
+  area.innerHTML = state.turns.map((t,i) => {
+    const lab = t.lab || {};
+    const original = lab.inputOriginal || t.text;
+    const didTranslate = !!lab.inputTranslated;
+    const userNote = didTranslate ?
+      '<div class="message-provenance lab"><strong>Live Lab 英訳 → PyBotに渡した英文</strong><div>' + esc(t.text) + '</div></div>' :
+      '<div class="message-provenance pure">PyBotへ直接送信（翻訳なし）</div>';
+    const translated = lab.outputTranslated && lab.outputJapanese ?
+      '<div class="translated-reply"><span class="translation-tag">Live Lab 訳 / 日本語</span><div>' +
+      esc(lab.outputJapanese) + '</div></div>' : "";
+    const translationWarning = lab.translationWarning ?
+      '<div class="translation-warning">' + esc(lab.translationWarning) + '</div>' : "";
+    return '<div class="bubble-row user"><div class="bubble-main"><div class="bubble">' +
+      esc(original) + '</div>' + userNote + '</div></div>' +
+      '<div class="bubble-row bot"><div class="speaker">P</div><div class="bubble-main">' +
+      '<div class="reply-provenance">PyBot純正 / 英語の原文</div>' +
+      '<div class="bubble">' + esc(t.reply) + '</div>' +
+      translated + translationWarning +
+      '<div class="bubble-meta"><span class="mini-tag">' + esc(t.module || "fallback") +
+      '</span><span>' + esc(t.elapsed_ms) + ' ms · ' + esc(t.candidate_count) +
+      ' candidates</span><button data-turn="' + i + '">内部を見る ↗</button></div></div></div>';
+  }).join("");
   area.querySelectorAll("[data-turn]").forEach(b => b.onclick = () => selectTurn(Number(b.dataset.turn)));
   area.scrollTop = area.scrollHeight;
 }
@@ -101,6 +117,7 @@ function selectTurn(i) {
   const t = state.turns[i];
   state.module = t.module || (t.candidates[0] && t.candidates[0].module) || null;
   state.trace = null;
+  if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.render(null, t);
   renderCandidateList();
   tab("candidates");
 }
@@ -195,6 +212,7 @@ function renderSource() {
   $("prevPage").disabled = d.start <= 1;
   $("nextPage").disabled = d.start + d.lines.length - 1 >= d.total;
   $("traceBtn").disabled = state.busy || !state.module || state.active < 0;
+  $("traceMapBtn").disabled = state.busy || !state.module || state.active < 0;
   $("moduleBtn").disabled = !state.module;
 }
 async function traceSource() {
@@ -204,6 +222,7 @@ async function traceSource() {
   try {
     state.trace = await request("/api/trace", {session:state.session,turn_index:turnIndex,module});
     const data = state.trace;
+    if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.render(data, state.turns[turnIndex]);
     $("traceNote").textContent = (data.warning ||
       "再実行と元の回答が一致しました。色付きの行は、対象モジュールまたはarbiterで実際に通過した行です。") +
       " 関数一覧は呼び出しを観測したもので、各ヘルパー関数の内部行まで追跡したものではありません。";
@@ -247,17 +266,37 @@ async function searchCode() {
 async function sendQuestion() {
   const input = $("questionInput").value.trim();
   if (!input || state.busy) return;
-  toggleBusy(true, "PyBotが候補を生成しています。初回は本体の読み込みにも時間がかかります…");
+  toggleBusy(true, "質問を準備しています…");
   $("questionInput").value = "";
   const pending = document.createElement("div");
   pending.className = "thinking";
-  pending.textContent = "PyBot がルールを評価しています";
+  pending.textContent = "入力を準備しています";
   $("conversation").appendChild(pending);
   $("conversation").scrollTop = $("conversation").scrollHeight;
   try {
-    const response = await request("/api/ask", {session:state.session,seed:state.seed,text:input});
+    const translation = window.PyBotLabTranslation;
+    const prepared = translation ?
+      await translation.prepare(input) :
+      {inputOriginal:input, sentToPyBot:input, inputTranslated:false, bridge:"pure"};
+    // Guard the research sample: ONLY the displayed English text reaches
+    // original bot.runtime.turn(); the unmodified PyBot never translates.
+    pending.textContent = "PyBot純正のルールを実行しています";
+    const response = await request("/api/ask", {
+      session:state.session, seed:state.seed, text:prepared.sentToPyBot
+    });
+    pending.textContent = "回答を表示しています";
+    // If output translation fails, preserve the successful raw PyBot result.
+    let output = {outputJapanese:"", outputTranslated:false};
+    if (translation) {
+      try { output = await translation.translateReply(response.reply); }
+      catch (error) {
+        output = {outputJapanese:"", outputTranslated:false,
+          translationWarning:"日本語訳のみ失敗しました。PyBot純正の回答は保存されています。"};
+      }
+    }
+    response.lab = {...prepared, ...output};
     state.turns.push(response);
-    selectTurn(state.turns.length-1);
+    selectTurn(state.turns.length - 1);
     renderConversation();
     updateNext(input);
   } catch (err) {
@@ -275,6 +314,7 @@ async function resetConversation() {
   try {
     if (state.turns.length) await request("/api/reset", {session:state.session});
     state.turns = []; state.active = -1; state.module = null; state.trace = null; state.source = null;
+    if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.render(null, null);
     renderConversation();
     renderCandidateList();
     $("codeView").innerHTML = '<div class="placeholder-code"># ここにPyBotの実際のコードが表示されます</div>';
@@ -330,6 +370,11 @@ function init() {
     }
   };
   $("traceBtn").onclick = traceSource;
+  $("traceMapBtn").onclick = traceSource;
+  if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.onOpen = (path,line) => {
+    tab("code");
+    openSource(path, Math.max(1, Number(line) - 7));
+  };
   $("moduleBtn").onclick = () => state.module && openSource("bot/modules/" + state.module + ".py", null, state.module);
   $("arbiterBtn").onclick = () => openSource("bot/modules/arbiter.py", 200);
   $("resetBtn").onclick = resetConversation;
