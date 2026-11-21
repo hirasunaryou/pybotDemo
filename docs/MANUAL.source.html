@@ -55,11 +55,26 @@
 <section class="chapter" id="screen">
   <div class="chapter-header"><div class="chapter-id">CHAPTER 02 <span>/ ORIENTATION</span></div><h2>一画面で、<span>会話から根拠まで。</span></h2><p>まず左側で話しかけ、次に右側で採択された候補とコードを見る。表示は右上の「ライトへ／ダークへ」で切り替えられ、初回はOS設定に合わせます。</p></div>
   <div class="screen-figure"><div class="figure-head"><span><i></i> ACTUAL APPLICATION SCREEN</span><span>UI CAPTURE / PYBOT REAL RUN</span></div><img src="images/overview.png" alt="実アプリ画面。左がPyBotとの会話、右が候補の一覧と採択結果。" width="1460"><div class="figure-footer"><span><b>01</b> 左側：会話を始める</span><span><b>02</b> 右側：候補を見る</span><span><b>03</b> 候補をクリックしてコードへ</span></div></div>
+  <div class="display-tip"><strong>Web勉強会での投影</strong><span>画面右上の「A− / 100% / A＋」で文字を100〜175%に拡大できます。「発表」を押すと説明部分を隠し、会話・解析に画面を広く使えます。PyBotの回答内容は変わりません。</span></div>
   <div class="three-guide"><div><strong>PLAYGROUND</strong><h3>会話</h3><p>質問するとPyBotが返信。応答時間と採択モジュールが表示されます。</p></div><div><strong>CANDIDATES</strong><h3>候補比較</h3><p>複数のルールが作った回答候補と優先度を表示。採択されたものを識別できます。</p></div><div><strong>SOURCE</strong><h3>コード探索</h3><p>対応するPythonの実コードへ移動。実行行の追跡と検索も行えます。</p></div></div>
 </section>
 <section class="chapter" id="voice">
   <div class="chapter-header"><div class="chapter-id">CHAPTER 03 <span>/ VOICE INPUT</span></div><h2>「質問する」を、<span>話すだけに。</span></h2><p>会場から思いついた疑問を、マイクから文字に変換。送信する前にテキストを確認・修正できます。</p></div>
   <div class="voice-panel"><div class="voice-panel-left"><span class="voice-eyebrow">SPEECH TO TEXT</span><div class="mic-round"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg></div><div class="waves"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="voice-state">LISTENING <span>●</span></div><small>説明用イラスト。実際にはブラウザの音声認識を利用します。</small></div><div class="voice-panel-right"><div class="voice-sequence"><b>01</b><div><h3>マイクをクリック</h3><p>入力欄の「音声」を押し、マイクへのアクセスを許可します。</p></div></div><div class="voice-sequence"><b>02</b><div><h3>英語・日本語を話す</h3><p>音声言語を選択し、質問を話します。文字起こしが入力欄に表示されます。</p></div></div><div class="voice-sequence"><b>03</b><div><h3>確認して送信</h3><p>結果を編集して「送信」。音声認識終了だけではPyBotに質問を送信しません。</p></div></div></div></div>
+  <div class="bridge-educator">
+    <div class="bridge-head"><span>LAB FEATURE / OPTIONAL</span><h3>日本語でも実験できる「翻訳ブリッジ」</h3><p>PyBot純正の日本語対応ではありません。Live Labがブラウザ内蔵の翻訳器を前後に挟み、<strong>どこまでがPyBotの返答か</strong>を明示します。</p></div>
+    <div class="bridge-diagram">
+      <div class="bridge-diag-item bridge-lab"><small>LIVE LAB</small><strong>① 日本語の質問</strong><span>入力した日本語原文</span></div>
+      <div class="bridge-diag-arrow">→</div>
+      <div class="bridge-diag-item bridge-lab"><small>LIVE LAB</small><strong>② 英訳</strong><span>実際にPyBotへ渡す英文</span></div>
+      <div class="bridge-diag-arrow">→</div>
+      <div class="bridge-diag-item bridge-original"><small>PYBOT</small><strong>③ 英語で回答</strong><span>原文をそのまま保存</span></div>
+      <div class="bridge-diag-arrow">→</div>
+      <div class="bridge-diag-item bridge-lab"><small>LIVE LAB</small><strong>④ 日本語訳</strong><span>原文と別に表示</span></div>
+    </div>
+    <p class="bridge-hint">初期状態は翻訳OFF。質問欄上の「日本語ブリッジ OFF」を押して準備します。対応するChrome/Edgeデスクトップ版ではブラウザのオンデバイスTranslator APIを使用します。初回に言語パックの取得が必要な場合があります。未対応の場合はOFFのままで英語の純正会話ができます。</p>
+    <p class="bridge-hint"><a href="https://developer.chrome.com/docs/ai/translator-api" target="_blank" rel="noopener">GoogleのTranslator API公式資料 ↗</a>　翻訳には誤訳の可能性があります。原文の英語・実際に渡した英文も確認しながら、PyBotの能力と翻訳の効果を分けて議論してください。</p>
+  </div>
   <div class="warning-note"><div class="warning-icon">!</div><p><strong>プライバシーと対応ブラウザ</strong><br>文字起こしにはブラウザ標準のSpeechRecognitionを使用します。音声がブラウザ提供元のサービスに送られる場合があるため、<b>完全オフラインの音声認識とは保証できません</b>。PyBot本体は音声データを受け取らず、認識後の文字だけを扱います。非対応ブラウザではMacの音声入力、Windowsの <code>Win+H</code> を使えます。</p></div>
 </section>
 <section class="chapter" id="experiment">
@@ -71,6 +86,9 @@
 <section class="chapter" id="source">
   <div class="chapter-header"><div class="chapter-id">CHAPTER 05 <span>/ CODE TRACE</span></div><h2>「なぜこの回答？」を、<span>ソースまで追う。</span></h2><p>候補をクリックすると実際のPythonファイルを表示。「実行行を追跡」でルールが通った箇所を調べます。</p></div>
   <div class="trace-figure"><div class="figure-head"><span><i></i> REAL EXECUTION TRACE</span><span>ACTUAL UPSTREAM CODE</span></div><img src="images/code-trace.png" alt="実コードのソース追跡画面。Pythonの通過行が強調されている。" width="1460"></div>
+  <div class="map-guide"><span class="map-guide-label">NEW · DYNAMIC CALL MAP</span><h3>何万行も追う前に、まず処理の地図を見る</h3><p>「処理マップ」で <b>①観察・記憶 → ②候補生成 → ③選択 → ④後処理</b> を俯瞰。「▶ 経路を観測」を押すと、実際に通過した関数を順番に並べられます。関数カードを押すと、原文Pythonの定義場所へジャンプできます。</p>
+    <div class="map-guide-flow"><div><b>OBSERVE</b><span>会話・文脈</span></div><i>→</i><div><b>RESPOND</b><span>候補を生成</span></div><i>→</i><div><b>CHOOSE</b><span>arbiter</span></div><i>→</i><div><b>AFTER</b><span>履歴の更新</span></div></div>
+    <p>呼出し回数とコードはPyBotの再実行から取得します。「知識」「記憶」「文の構成」といった分類名は、Live Labがフォルダ構成を使って整理した案内であり、関数の厳密な目的を確定したものではありません。</p></div>
   <div class="trace-flow"><div><span>①</span><b>候補を選ぶ</b><small>本物の回答候補</small></div><div class="flow-connector">→</div><div><span>②</span><b>コードを開く</b><small>実ソースを表示</small></div><div class="flow-connector">→</div><div><span>③</span><b>再実行で追跡</b><small>通過行を表示</small></div><div class="flow-connector">→</div><div><span>④</span><b>議論する</b><small>条件・文脈の違い</small></div></div>
   <div class="evidence"><div class="evidence-head">OBSERVED <span>≠</span> EXPLAINED</div><div class="evidence-cols"><div><b>直接観測した事実</b><p>元の質問で生成された候補・採択モジュール・優先度・応答時間。</p></div><div><b>再実行から得たトレース</b><p>固定seedで会話を別途再実行した時の通過行と関数呼び出し。元の応答と一致したかも表示します。</p></div></div><p class="evidence-flag">通過行は「その行が回答を決めた証明」ではありません。採択理由は前後の条件と候補を読んで検証してください。</p></div>
 </section>
@@ -81,7 +99,7 @@
   <div class="research-banner"><div><span>RESEARCH LIBRARY</span><h3>議論が深まったら、原典へ。</h3><p>PyBot公式ソース・評価資料、ELIZA原著論文、Bitter Lessonへのリンクと、図解した整理ページを用意しています。</p></div><a href="RESEARCH.html" target="_blank" rel="noopener">資料ライブラリ ↗</a></div>
 </section>
 <section class="chapter" id="question"><div class="chapter-header"><div class="chapter-id">CHAPTER 07 <span>/ HELP DESK</span></div><h2>困ったときの、<span>最短ルート。</span></h2></div>
-  <div class="faq"><details><summary>MacでSSL証明書エラーが出て起動できない</summary><p>Python.org版Pythonで初回の `CERTIFICATE_VERIFY_FAILED` が起こる場合があります。Live Labはこの場合だけ、macOS標準のcurlを使って証明書を検証したまま安全に再試行します。解消しないときはFinderの「アプリケーション → Python 3.13 → Install Certificates.command」を実行し、改めて起動してください。Pythonのバージョンが異なる場合は対応するフォルダを選びます。<strong>証明書の検証を無効化する方法は使わないでください。</strong></p></details><details><summary>ライト／ダークを切り替えたい</summary><p>アプリ右上の「ライトへ」「ダークへ」を押します。次回以降は選択した表示テーマをこのブラウザ内に保存し、会話データとは別に扱います。</p></details><details><summary>CSSや画像が表示されない</summary><p>この配布版 <code>MANUAL.html</code> はCSSと実スクリーンショットを同梱した単体ファイルです。ブラウザで直接開いてください。もしリンクが生きない場合も、本文・図解はネット接続なしで読めます。</p></details>
+  <div class="faq"><details><summary>日本語ブリッジのボタンが使用できない</summary><p>ブラウザにオンデバイスTranslator APIがない、または必要な言語パック・環境条件を満たしていない可能性があります。Chrome 138以降のデスクトップ版、対応Edgeをお試しください。利用できない場合でもPyBot純正の英語会話やソース追跡は利用できます。<strong>翻訳機能はPyBotの実力とは分けて評価してください。</strong></p></details><details><summary>MacでSSL証明書エラーが出て起動できない</summary><p>Python.org版Pythonで初回の `CERTIFICATE_VERIFY_FAILED` が起こる場合があります。Live Labはこの場合だけ、macOS標準のcurlを使って証明書を検証したまま安全に再試行します。解消しないときはFinderの「アプリケーション → Python 3.13 → Install Certificates.command」を実行し、改めて起動してください。Pythonのバージョンが異なる場合は対応するフォルダを選びます。<strong>証明書の検証を無効化する方法は使わないでください。</strong></p></details><details><summary>ライト／ダークを切り替えたい</summary><p>アプリ右上の「ライトへ」「ダークへ」を押します。次回以降は選択した表示テーマをこのブラウザ内に保存し、会話データとは別に扱います。</p></details><details><summary>CSSや画像が表示されない</summary><p>この配布版 <code>MANUAL.html</code> はCSSと実スクリーンショットを同梱した単体ファイルです。ブラウザで直接開いてください。もしリンクが生きない場合も、本文・図解はネット接続なしで読めます。</p></details>
   <details><summary>マイクボタンが使えない</summary><p>ブラウザによりSpeechRecognitionが利用できない場合があります。Macの音声入力、Windowsの <code>Win+H</code> を試してください。マイクの許可も確認します。</p></details>
   <details><summary>Pythonが見つからない</summary><p><a href="https://www.python.org/downloads/">Python公式サイト</a>からPython 3.8以上を導入してください。アプリの本体には追加pipパッケージはありません。</p></details>
   <details><summary>最初の回答が遅い</summary><p>初回は大量のPythonルールを読み込みます。LLMの重みをロードしているわけではありません。</p></details>
