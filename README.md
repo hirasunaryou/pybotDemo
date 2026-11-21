@@ -87,6 +87,15 @@
 初回のみインターネット接続を使い、公開されているPyBotの**固定コミット**を `.runtime/pybot` に取得します。以降は保存したコードをローカルで使います。起動スクリプトのウィンドウを閉じるかCtrl+Cで終了できます。
 
 <details>
+<summary><strong>Macで初回ダウンロードがSSL証明書エラーになる場合</strong></summary>
+
+Python.orgからインストールしたPythonで `CERTIFICATE_VERIFY_FAILED` が出る場合があります。最新版のLive LabではPythonのHTTPS検証が失敗したときに、macOSのシステム証明書を使う `/usr/bin/curl` で安全に再試行します（TLS検証は無効化しません）。
+
+それでも失敗した場合はFinder → アプリケーション → `Python 3.13` → `Install Certificates.command` を開き、再度 `start_mac.command` を実行してください。Pythonのバージョンが異なる場合は、そのバージョンのフォルダにある証明書スクリプトを使用してください。
+
+</details>
+
+<details>
 <summary><strong>Macでファイルが開かない／既存のPyBotを使いたい場合</strong></summary>
 
 macOSの保護機能によりブロックされた場合は、ファイルを右クリックして「開く」で内容を確認してください。既にPyBotを取得済みの場合は、環境変数 `PYBOT_DEMO_SOURCE` でそのソースの親フォルダを指定できます。詳しくは[操作マニュアル](docs/MANUAL.html)を参照してください。
