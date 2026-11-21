@@ -51,6 +51,9 @@ jobs:
           node --check demo/static/app.js
           node --check demo/static/voice.js
           node --check demo/static/theme.js
+          node --check demo/static/translation.js
+          node --check demo/static/presentation.js
+          node --check demo/static/trace-map.js
 
   mac-cert-recovery:
     name: macOS Python 3.13 / secure SSL recovery
