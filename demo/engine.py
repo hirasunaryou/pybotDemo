@@ -252,6 +252,26 @@ class Engine:
                            if replay_reply != selection["reply"] or result.get("module") != selection["module"] else ""
             }
 
+    def playback(self, key, turn_index):
+        """Replay one complete turn for a bounded, seekable execution film.
+
+        The original turn is NEVER rerun in its live conversation memory.
+        This is a separate, deterministic, explicitly labelled observation.
+        """
+        from .playback import replay_film
+        current = self.session(key, create=False)
+        if not isinstance(turn_index, int) or isinstance(turn_index, bool):
+            raise InputError("再生対象のターン番号が不正です")
+        with _RUNTIME_LOCK:
+            if not 0 <= turn_index < len(current.turns):
+                raise InputError("指定された会話のターンがありません")
+            selected = current.turns[turn_index]
+            inputs = [turn["text"] for turn in current.turns[:turn_index + 1]]
+            return replay_film(
+                self.runtime, self.source, inputs, selected["module"],
+                selected["reply"], current.seed
+            )
+
     def files(self):
         files = list((self.source / "bot").rglob("*.py"))
         buckets = {}
@@ -273,14 +293,21 @@ class Engine:
             raise InputError("ソースファイルが見つかりません")
         return path
 
-    def source_lines(self, name, start=1, limit=95):
+    def source_lines(self, name, start=1, limit=95, focus=None):
         path = self.file(name)
         rows = path.read_text(encoding="utf-8").splitlines()
         start = max(1, min(int(start), max(1, len(rows))))
         limit = max(1, min(int(limit), 160))
-        return {"path": name, "start": start, "total": len(rows), "lines": [
+        data = {"path": name, "start": start, "total": len(rows), "lines": [
             {"n": i+1, "code": rows[i]} for i in range(start-1, min(len(rows), start-1+limit))
         ]}
+        if focus is not None:
+            from .playback import function_docstring
+            line = int(focus)
+            if not 1 <= line <= len(rows):
+                raise InputError("ソースの行番号が不正です")
+            data["function_info"] = function_docstring(self.source, name, line)
+        return data
 
     def entry_line(self, module):
         path = self.module_file(module)
