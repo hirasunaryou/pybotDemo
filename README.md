@@ -43,6 +43,16 @@
 | 🧪 **弱点を実験する** | 名前の記憶、言い換え、未知の概念、日本語への反応を比較して、LLMとの違いを議論。 |
 | 📚 **原典に立ち戻る** | PyBot公式ソース・ベンチマーク・ELIZAなどの一次資料へ、アプリからすぐアクセス。 |
 
+### 動くコードプレイヤー — 質問から回答文の定義まで
+
+<a href="docs/images/code-film.png">
+  <img src="docs/images/code-film.png" alt="実際のPyBotによる平均値の回答を追跡。再生バーでコードを早送り・巻き戻しでき、最終コマは元回答と完全一致する bot/knowledge/maths.py の文字列定義へ移動する" width="100%">
+</a>
+
+<sub>▲ 実際のPyBotを使った「Do you know how to calculate mean?」の結果。▶再生・一時停止・スライダー・コマ送り・速度変更・全画面表示に対応。最後の「回答文の定義」は**実行後にソースを静的照合した結果**で、実行時刻のイベントではありません。</sub>
+
+**今回の回答は、PyBot純正の [`bot/knowledge/maths.py` 5101–5104行](https://github.com/huggingface/pybot/blob/7d63c7fbebb44c7e466e5c8b5c1f341ab767929e/bot/knowledge/maths.py#L5101-L5104) に `_AVERAGE_EXPLAIN` として書かれていました。** `_averages()` は質問条件を判定し、5196行でこの定義済みの説明文を返します。LLMのように1トークンずつ文章を生成しているわけではありません。
+
 ### 処理全体の道順を、ダイナミックに眺める
 
 <a href="docs/images/trace-map.png">
