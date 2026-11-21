@@ -62,7 +62,8 @@ class Application:
                 start = 1
             if params.get("start"):
                 start = int(params["start"][0])
-            return engine.source_lines(name, start, 110)
+            focus = params.get("focus", [None])[0]
+            return engine.source_lines(name, start, 110, focus=focus)
         raise InputError("APIが見つかりません")
 
     def handle_post(self, path, data):
@@ -74,6 +75,8 @@ class Application:
             return engine.reset(key)
         if path == "/api/trace":
             return engine.trace(key, data.get("turn_index"), data.get("module"))
+        if path == "/api/playback":
+            return engine.playback(key, data.get("turn_index"))
         if path == "/api/search":
             return engine.search_code(data.get("query"), data.get("scope", "all"))
         raise InputError("APIが見つかりません")
