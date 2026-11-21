@@ -29,6 +29,30 @@ def main():
     assert len(engine.session(session).turns) == 2, "Replay changed real conversation"
     print("Trace:", len(details["hits"][module_path]), "lines,", len(details["calls"]), "functions")
     print("Replay matches original:", details["replay_equal"])
+
+    # This educational example is intentionally source-grounded:
+    # the reply appears as the literal _AVERAGE_EXPLAIN in maths.py.
+    math_session = "upstream_math_mean"
+    math_turn = engine.ask(math_session, "Do you know how to calculate mean?")
+    print("Mean demonstration selected:", math_turn["module"])
+    print("Mean reply:", math_turn["reply"][:140])
+    film = engine.playback(math_session, 0)
+    assert film["replay_equal"], film.get("warning")
+    assert film["frames"], "Replay film has no real observed frames"
+    assert film["frames"][0]["kind"] == "start", film["frames"][0]
+    assert any(row["kind"] == "final" for row in film["frames"]), "Missing final answer"
+    assert len(film["frames"]) <= film["frame_cap"]
+    assert len(engine.session(math_session).turns) == 1, "Replay mutated the live session"
+    origin = next((hint for hint in film["source_matches"] if hint["verified_equal"]
+                   and hint["path"] == "bot/knowledge/maths.py"), None)
+    assert origin is not None, "The exact math reply literal must be found in original source"
+    assert origin["symbol"] == "_AVERAGE_EXPLAIN", origin
+    assert origin["line"] == 5101, origin
+    assert any(x["line"] == 5196 for x in origin["references"]), origin
+    print("Mean answer exact source:", origin["path"], "line", origin["line"])
+    print("Mean answer static return candidates:", [x["line"] for x in origin["references"]])
+    print("Playback:", film["call_count"], "observed calls,", len(film["frames"]),
+          "selected display frames; candidate-return matched:", film["candidate_return_matched"])
     print("Smoke: PASS")
 
 
