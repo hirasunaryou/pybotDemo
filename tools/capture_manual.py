@@ -119,6 +119,7 @@ def main():
             assert page.locator(".map-step").count() == 4
             assert page.locator(".map-function").count() > 0
             assert page.locator(".map-flag.lab").count() == 1
+            page.locator(".insight-panel").screenshot(path=str(output / "trace-map.png"))
             page.locator(".map-function").first.click()
             assert page.locator('button[data-tab="code"]').get_attribute("aria-selected") == "true"
             print("Replay hook phases and clickable function call map: passed")
