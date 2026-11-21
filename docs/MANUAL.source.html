@@ -85,6 +85,19 @@
 </section>
 <section class="chapter" id="source">
   <div class="chapter-header"><div class="chapter-id">CHAPTER 05 <span>/ CODE TRACE</span></div><h2>「なぜこの回答？」を、<span>ソースまで追う。</span></h2><p>候補をクリックすると実際のPythonファイルを表示。「実行行を追跡」でルールが通った箇所を調べます。</p></div>
+  <div class="film-manual-demo">
+    <div class="film-manual-label">NEW / SOURCE CODE FILM PLAYER</div>
+    <h3>コードを再生する。時間バーで一気に最終回答へ。</h3>
+    <p>「処理マップ → ▶ コードを再生」を押すと、そのターンを別のメモリで再実行し、実際に呼ばれた関数と重要行を時系列に記録します。再生中は実コードが自動で切り替わり、現在の処理段階・ファイルの所属から推定した役割・原文docstring（ある場合）を確認できます。</p>
+    <div class="film-manual-visual">
+      <img src="images/code-film.png" alt="実PyBotを使って平均値の説明文に到達したコード実行プレイヤー。コード画面、処理分類、時刻バー、再生ボタンと回答ソース定義を表示。">
+    </div>
+    <div class="film-manual-controls">
+      <span>▶ 再生 / Ⅱ 停止</span><span>← / → コマ送り</span><span>▬ スライダーで移動</span><span>×1～×8 速度</span><span>⤢ 拡大</span><span>▶| 最後へ</span>
+    </div>
+    <p><strong>平均値の質問の実例：</strong> PyBot純正の <code>bot/knowledge/maths.py:5101–5104</code> に回答文 <code>_AVERAGE_EXPLAIN</code> が定義され、<code>_averages()</code> の条件判定がそれを返します。<a href="https://github.com/huggingface/pybot/blob/7d63c7fbebb44c7e466e5c8b5c1f341ab767929e/bot/knowledge/maths.py#L5101-L5104" target="_blank" rel="noopener">回答の定義を公式ソースで確認 ↗</a></p>
+    <div class="film-manual-warning"><strong>映像は実行動画ではなく観測イベントの再生です。</strong> 実際に呼ばれた関数や通過行を見やすく間引いています。最後に付けた「完全一致する文字列定義」「静的な参照箇所」は、<strong>実行後のソース調査</strong>です。元の回答と再実行の結果が異なる場合は画面に警告を出し、元の確定実行経路とみなしません。</div>
+  </div>
   <div class="trace-figure"><div class="figure-head"><span><i></i> REAL EXECUTION TRACE</span><span>ACTUAL UPSTREAM CODE</span></div><img src="images/code-trace.png" alt="実コードのソース追跡画面。Pythonの通過行が強調されている。" width="1460"></div>
   <div class="screen-figure"><div class="figure-head"><span><i></i> ACTUAL TRACE MAP</span><span>PYBOT REPLAY / LIVE LAB VISUALIZATION</span></div><img src="images/trace-map.png" alt="実PyBotの再実行から作成した処理マップ。hook呼び出し、回答候補、関数呼び出しを表示" width="1460"></div>
   <div class="map-guide"><span class="map-guide-label">NEW · DYNAMIC CALL MAP</span><h3>何万行も追う前に、まず処理の地図を見る</h3><p>「処理マップ」で <b>①観察・記憶 → ②候補生成 → ③選択 → ④後処理</b> を俯瞰。「▶ 経路を観測」を押すと、実際に通過した関数を順番に並べられます。関数カードを押すと、原文Pythonの定義場所へジャンプできます。</p>
