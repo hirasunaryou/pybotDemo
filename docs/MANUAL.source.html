@@ -86,6 +86,7 @@
 <section class="chapter" id="source">
   <div class="chapter-header"><div class="chapter-id">CHAPTER 05 <span>/ CODE TRACE</span></div><h2>「なぜこの回答？」を、<span>ソースまで追う。</span></h2><p>候補をクリックすると実際のPythonファイルを表示。「実行行を追跡」でルールが通った箇所を調べます。</p></div>
   <div class="trace-figure"><div class="figure-head"><span><i></i> REAL EXECUTION TRACE</span><span>ACTUAL UPSTREAM CODE</span></div><img src="images/code-trace.png" alt="実コードのソース追跡画面。Pythonの通過行が強調されている。" width="1460"></div>
+  <div class="screen-figure"><div class="figure-head"><span><i></i> ACTUAL TRACE MAP</span><span>PYBOT REPLAY / LIVE LAB VISUALIZATION</span></div><img src="images/trace-map.png" alt="実PyBotの再実行から作成した処理マップ。hook呼び出し、回答候補、関数呼び出しを表示" width="1460"></div>
   <div class="map-guide"><span class="map-guide-label">NEW · DYNAMIC CALL MAP</span><h3>何万行も追う前に、まず処理の地図を見る</h3><p>「処理マップ」で <b>①観察・記憶 → ②候補生成 → ③選択 → ④後処理</b> を俯瞰。「▶ 経路を観測」を押すと、実際に通過した関数を順番に並べられます。関数カードを押すと、原文Pythonの定義場所へジャンプできます。</p>
     <div class="map-guide-flow"><div><b>OBSERVE</b><span>会話・文脈</span></div><i>→</i><div><b>RESPOND</b><span>候補を生成</span></div><i>→</i><div><b>CHOOSE</b><span>arbiter</span></div><i>→</i><div><b>AFTER</b><span>履歴の更新</span></div></div>
     <p>呼出し回数とコードはPyBotの再実行から取得します。「知識」「記憶」「文の構成」といった分類名は、Live Labがフォルダ構成を使って整理した案内であり、関数の厳密な目的を確定したものではありません。</p></div>
