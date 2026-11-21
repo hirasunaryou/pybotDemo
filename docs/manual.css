@@ -228,3 +228,14 @@ a:hover{color:#076256}
  .map-guide-flow{flex-wrap:wrap}
  .map-guide-flow div{min-width:36%}
 }
+
+.film-manual-demo{border-radius:15px;border:1px solid #b4d6d4;background:#e6f4f1;margin:25px 0;padding:25px 29px}
+.film-manual-label{font-size:11px;font-weight:900;letter-spacing:.14em;color:#087e71}
+.film-manual-demo h3{font-size:20px;margin:9px 0;color:#174f50}
+.film-manual-demo p{font-size:12px;line-height:1.9;color:#355c65}
+.film-manual-visual{border:1px solid #386575;background:#102535;border-radius:11px;overflow:hidden;margin:17px 0}
+.film-manual-visual img{width:100%;height:auto;display:block}
+.film-manual-controls{display:flex;flex-wrap:wrap;gap:7px;margin:13px 0}
+.film-manual-controls span{background:#fff;color:#246760;border:1px solid #b4dad0;border-radius:20px;padding:5px 10px;font-size:10px;font-weight:800}
+.film-manual-warning{background:#fffaed;border-left:3px solid #d3a050;border-radius:6px;padding:13px 16px;color:#765c32;font-size:11px;line-height:1.8;margin-top:14px}
+@media(max-width:780px){.film-manual-demo{padding:16px}.film-manual-demo h3{font-size:17px}}
