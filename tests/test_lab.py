@@ -97,6 +97,12 @@ class FakeSource(unittest.TestCase):
         trace = self.engine.trace("test_session_2", item["turn_index"], "backup")
         self.assertTrue(trace["replay_equal"])
         self.assertEqual(trace["selected_module"], "backup")
+        self.assertIn("phase_counts", trace)
+        self.assertGreaterEqual(trace["phase_counts"].get("respond", 0), 2)
+        self.assertGreaterEqual(trace["phase_counts"].get("choose", 0), 1)
+        self.assertTrue(any(c["phase"] == "choose" for c in trace["phase_events"]))
+        self.assertTrue(any(c["path"] == "bot/modules/backup.py" for c in trace["call_chain"]))
+        self.assertGreaterEqual(trace["replay_candidate_count"], 2)
         self.assertIn("bot/modules/backup.py", trace["hits"])
         self.assertIn("bot/modules/arbiter.py", trace["hits"])
         # Replaying for instrumentation must NOT add another turn to the real chat.
@@ -117,6 +123,15 @@ class FakeSource(unittest.TestCase):
             self.engine.ask("short", "test")
         with self.assertRaises(InputError):
             self.engine.trace("test_session_2", 44, "backup")
+
+    def test_original_pybot_receives_unmodified_raw_text(self):
+        # Translation is a separate, opt-in browser layer, not part of PyBot.
+        japanese = "日本語だけの質問です"
+        result = self.engine.ask("japanese_only_session", japanese)
+        self.assertEqual(result["text"], japanese)
+        self.assertEqual(self.engine.session("japanese_only_session").memory["turns"][0]["user"],
+                         japanese)
+        self.assertNotIn("lab", result)
 
     def test_reset_and_rng_isolation(self):
         random.seed(1234)
@@ -144,6 +159,10 @@ class FakeSource(unittest.TestCase):
             self.assertIn("独立した勉強会用ツール", html)
             self.assertIn("id=\"voiceBtn\"", html)
             self.assertIn('id="themeToggle"', html)
+            self.assertIn('id="jaBridgeBtn"', html)
+            self.assertIn('id="fontPlus"', html)
+            self.assertIn('id="traceMap"', html)
+            self.assertIn('data-tab="architecture"', html)
             self.assertIn('href="/docs/RESEARCH.html"', html)
         with urlopen(url + "static/voice.js", timeout=10) as response:
             js = response.read().decode("utf-8")
@@ -154,6 +173,12 @@ class FakeSource(unittest.TestCase):
             self.assertIn("prefers-color-scheme", theme_script)
             self.assertIn("localStorage", theme_script)
             self.assertIn('data-theme', theme_script)
+        for name, needle in (("translation.js", "Translator.create"),
+                             ("presentation.js", "--lab-font-scale"),
+                             ("trace-map.js", "phase_counts"),
+                             ("enhancements.css", ".map-step")):
+            with urlopen(url + "static/" + name, timeout=10) as response:
+                self.assertIn(needle, response.read().decode("utf-8"))
         with urlopen(url + "docs/RESEARCH.html", timeout=10) as response:
             research = response.read().decode("utf-8")
             self.assertIn("ELIZA", research)
