@@ -123,6 +123,58 @@ def main():
             page.locator(".map-function").first.click()
             assert page.locator('button[data-tab="code"]').get_attribute("aria-selected") == "true"
             print("Replay hook phases and clickable function call map: passed")
+
+            # A real source-code film is seekable, can play and can jump
+            # backwards to the beginning without modifying the real chat.
+            page.locator('button[data-tab="architecture"]').click()
+            page.locator("#filmGenerateBtn").click()
+            page.locator("#filmPlayer:not(.hidden)").wait_for(timeout=180000)
+            page.locator(".film-line.focused").first.wait_for(timeout=60000)
+            frame_count = int(page.locator("#filmSeek").get_attribute("max"))
+            assert frame_count > 5, "Expected multiple observed code frames"
+            page.locator("#filmNext").click()
+            assert page.locator("#filmSeek").input_value() == "1"
+            page.locator("#filmFirst").click()
+            assert page.locator("#filmSeek").input_value() == "0"
+            page.locator("#filmPlay").click()
+            page.wait_for_timeout(500)
+            assert int(page.locator("#filmSeek").input_value()) > 0
+            page.locator("#filmPlay").click()
+            page.locator("#filmLast").click()
+            assert page.locator("#filmSeek").input_value() == str(frame_count)
+            page.locator("#filmPrevious").click()
+            assert int(page.locator("#filmSeek").input_value()) == frame_count - 1
+            page.locator("#filmExpand").click()
+            assert page.locator("#filmPlayer").get_attribute("class").find("expanded") >= 0
+            page.locator("#filmExpand").click()
+            assert "expanded" not in (page.locator("#filmPlayer").get_attribute("class") or "")
+            print("Film player: play/pause, step, rewind, seek last and fullscreen checks passed")
+
+            # Validate the exact example supplied in the workshop: PyBot's
+            # literal average explanation must lead to maths.py L5101.
+            math_page = browser.new_page(viewport={"width": 1460, "height": 1080})
+            math_page.emulate_media(color_scheme="light")
+            math_page.goto(url, wait_until="domcontentloaded")
+            math_page.locator("#questionInput").fill("Do you know how to calculate mean?")
+            math_page.locator("#sendBtn").click()
+            math_page.locator(".bubble-row.bot").first.wait_for(timeout=180000)
+            raw_math = math_page.locator(".bubble-row.bot .bubble").first.inner_text()
+            assert "The mean, which is what most people mean by an average" in raw_math, raw_math[:280]
+            math_page.locator('button[data-tab="architecture"]').click()
+            math_page.locator("#filmGenerateBtn").click()
+            math_page.locator("#filmPlayer:not(.hidden)").wait_for(timeout=180000)
+            math_page.locator(".film-line.focused").first.wait_for(timeout=60000)
+            math_page.locator("#filmLast").click()
+            math_page.locator("#filmFile").wait_for(timeout=60000)
+            assert "bot/knowledge/maths.py" in math_page.locator("#filmFile").inner_text()
+            assert "L5101" in math_page.locator("#filmFile").inner_text()
+            assert "静的" in math_page.locator("#filmElapsed").inner_text() or "ソース調査" in math_page.locator("#filmElapsed").inner_text()
+            assert "元の回答と完全一致" in math_page.locator("#filmPurpose").inner_text()
+            math_page.locator(".film-line.focused").first.wait_for(timeout=20000)
+            math_page.locator("#filmPlayer").screenshot(path=str(output / "code-film.png"))
+            math_page.close()
+            print("Exact user average-example answer matched maths.py L5101 in last film frame")
+
             page.locator("#themeToggle").click()
             assert page.locator("html").get_attribute("data-theme") == "light"
             page.reload(wait_until="domcontentloaded")
