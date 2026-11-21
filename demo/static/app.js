@@ -43,6 +43,7 @@ function toggleBusy(busy, label) {
   $("resetBtn").disabled = busy;
   $("traceBtn").disabled = busy || !state.module || state.active < 0;
   $("traceMapBtn").disabled = busy || !state.module || state.active < 0;
+  $("filmGenerateBtn").disabled = busy || state.active < 0;
   $("busyText").textContent = busy ? (label || "PyBotが実際に処理しています…") : "Enterで送信 / Shift+Enterで改行";
 }
 function tab(id) {
@@ -118,6 +119,7 @@ function selectTurn(i) {
   state.module = t.module || (t.candidates[0] && t.candidates[0].module) || null;
   state.trace = null;
   if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.render(null, t);
+  if (window.PyBotLabCodePlayer) window.PyBotLabCodePlayer.reset();
   renderCandidateList();
   tab("candidates");
 }
@@ -315,6 +317,8 @@ async function resetConversation() {
     if (state.turns.length) await request("/api/reset", {session:state.session});
     state.turns = []; state.active = -1; state.module = null; state.trace = null; state.source = null;
     if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.render(null, null);
+    if (window.PyBotLabCodePlayer) window.PyBotLabCodePlayer.reset();
+    $("filmGenerateBtn").disabled = true;
     renderConversation();
     renderCandidateList();
     $("codeView").innerHTML = '<div class="placeholder-code"># ここにPyBotの実際のコードが表示されます</div>';
@@ -371,6 +375,12 @@ function init() {
   };
   $("traceBtn").onclick = traceSource;
   $("traceMapBtn").onclick = traceSource;
+  $("filmGenerateBtn").onclick = async () => {
+    if (state.active < 0 || state.busy || !window.PyBotLabCodePlayer) return;
+    await window.PyBotLabCodePlayer.load({
+      session: state.session, turn_index: state.active, turn: state.turns[state.active]
+    });
+  };
   if (window.PyBotLabTraceMap) window.PyBotLabTraceMap.onOpen = (path,line) => {
     tab("code");
     openSource(path, Math.max(1, Number(line) - 7));
